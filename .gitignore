@@ -17,7 +17,7 @@
 /build
 
 # media files
-/client/public/sounds
+*.wav
 
 # misc
 .DS_Store
