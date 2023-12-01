@@ -2,14 +2,26 @@
 const express = require('express');
 const router = express.Router();
 const UserArrangement = require('../models/UserArrangement');
+const auth = require('../middleware/auth');
 
-router.post('/save', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const { userId, sounds } = req.body;
+    const userArrangements = await UserArrangement.find(!null);
+    res.send(userArrangements);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+})
+
+router.post('/save', auth, async (req, res) => {
+  // Access req.user.id to get the user ID from the token
+  try {
+    const { sounds } = req.body;
+    const userId = req.user.id; // Extracted by auth middleware
 
     // Create a new user arrangement
     const newArrangement = new UserArrangement({
-      userId, // You need to have authenticated the user and have their ID
+      userId,
       sounds,
     });
 
