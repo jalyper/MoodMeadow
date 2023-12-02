@@ -7,10 +7,12 @@ import Arranger from '../components/Arranger';
 import { audioCtx } from '../audioContext';
 import axios from 'axios';
 import LoginRegisterModal from '../components/LoginRegisterModal';
+import LoginLogoutButton from '../components/LoginLogoutButton';
 
 function Create() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
   const [user, setUser] = useState(null);
   const [sounds, setSounds] = useState([
     { id: 1, name: 'Light Rain', src: '/sounds/light-rain-30-min.wav' },
@@ -24,6 +26,23 @@ function Create() {
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
+
+  // Step 1: Set isLoggedIn based on token in localStorage
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('token'));
+  }, []);
+
+  // Step 2: Add a `handleLoginLogout` function
+  const handleLoginLogout = () => {
+    if (isLoggedIn) {
+      localStorage.removeItem('token');
+      setIsLoggedIn(false);
+      // Also update any user state if necessary
+      setUser(null);
+    } else {
+      setShowLoginModal(true); // Show the login modal if not logged in
+    }
+  };
 
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
@@ -102,6 +121,12 @@ function Create() {
     // Retrieve the token from local storage (or your state management)
     const token = localStorage.getItem('token');
   
+    // Check if the droppedSounds array is empty or contains only null or undefined values
+    if (!droppedSounds.length || droppedSounds.every(sound => sound == null)) {
+      setSaveMessage('Cannot save an empty arrangement. Please add some sounds.');
+      return; // Exit the function early if the validation fails
+    }
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userArrangements/save`, {
         sounds: droppedSounds,
@@ -113,10 +138,12 @@ function Create() {
   
       if (response.status === 201) {
         console.log('Saved to library', response.data);
+        setSaveMessage('Arrangement saved successfully!');
         // Additional UI feedback can be provided here
       }
     } catch (error) {
       console.error('Error saving to library', error.response.data);
+      setSaveMessage('Failed to save arrangement. Please make sure you are logged in and try again.');
       // Handle errors, possibly show user feedback
     }
   };
@@ -131,6 +158,7 @@ function Create() {
           </div>
           <Link to="/" className="icon-link">
             <div className="home-icon">
+              <LoginLogoutButton /><br />
               <span className="icon-text">Home</span>
             </div>
           </Link>
@@ -177,6 +205,7 @@ function Create() {
         <LoginRegisterModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} setIsLoggedIn={setIsLoggedIn} />
         <button onClick={playAllSounds} className="play-all-button">Play</button>
         <button onClick={clearDroppedSounds} className="clear-button">Clear</button>
+        {saveMessage && <div className="saved-to-library-result"> {saveMessage}</div>}
         <p className="save-to-library-summary">You can save your arrangement to your Library, where you can choose to publish it to the Discover page for the Mood Meadow community to experience!</p>
       </div>
     </DndProvider>

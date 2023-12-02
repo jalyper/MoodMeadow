@@ -1,8 +1,14 @@
 // pages/HomePage.js
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'; // Adjust the path as necessary
+import LoginRegisterModal from '../components/LoginRegisterModal'; // Adjust the path as necessary
+import LoginLogoutButton from '../components/LoginLogoutButton';
 
 function HomePage() {
+  const { isLoggedIn, logout } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   return (
     <div className="homepage">
       <header className="homepage-header">
@@ -11,8 +17,14 @@ function HomePage() {
             <input type="text" placeholder="Search for sounds or creators..." className="search-input" />
           </div>
           <h2 className="App-title">MOOD MEADOW</h2>
-        </div>
+        </div>  
+        <a class="icon-link" href="/">
+          <div class="home-icon">
+            <LoginLogoutButton />
+          </div>
+        </a>
       </header>
+      <LoginRegisterModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
       <div className="icon-container">
         <Link to="/create" className="icon-link">
           <div className="icon">

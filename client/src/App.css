@@ -209,6 +209,111 @@ footer {
   width: 50%;
 }
 
+.saved-to-library-result {
+  font-family: 'Oswald', cursive;
+  font-size: large;
+  color: rgb(34, 131, 34);
+  margin: 20px;
+  width: 50%;
+  font-weight: bold;
+}
+
+.ReactModal__Content, .ReactModal__Content--after-open {
+  width: 40%;
+  height: 40%;
+  margin-left: 30%;
+  background: linear-gradient(45deg, #424280, #434647) !important;
+  text-align: center;
+  border: 4px solid rgb(65, 62, 57) !important;
+}
+
+.modal-close-button {
+  position: relative;
+  float: right;
+  background: rgb(184, 170, 170);
+  opacity: 50%;
+  border: none;
+  font-size: 1.5em; /* Adjust as needed */
+  cursor: pointer;
+}
+
+.modal-close-button:hover {
+  background-color: white;
+}
+
+.display-login-form {
+  background: linear-gradient(45deg, #b6b6cf, #dbf5ff);
+  border: 2px solid black;
+  width: 25%;
+  font-family: 'Oswald', cursive;
+  font-size: large;
+}
+
+.login-button {
+  background: linear-gradient(45deg, #b6b6cf, #dbf5ff);
+  border: 2px solid black;
+  width: 10%;
+  font-family: 'Oswald', cursive;
+  font-size: large;
+}
+
+.login-logout-button {
+  background: linear-gradient(45deg, #b6b6cf, #dbf5ff);
+  font-family: 'Oswald', cursive;
+  font-size: small;
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  float: right;
+  position: relative;
+}
+
+.login-logout-button:hover {
+  background: linear-gradient(45deg, #dbf5ff, #b6b6cf);
+}
+
+.login-form-header {
+  font-family: 'Oswald', cursive;
+  color:#e0e0e0
+}
+
+.login-summary {
+  font-family: 'Oswald', cursive;
+  color:#e0e0e0
+}
+
+.login-error-message {
+  font-family: 'Oswald', cursive;
+  color:#f38080
+}
+
+.register-form-header {
+  font-family: 'Oswald', cursive;
+  color:#e0e0e0
+}
+
+.display-register-form {
+  background: linear-gradient(45deg, #b6b6cf, #dbf5ff);
+  border: 2px solid black;
+  width: 15%;
+  font-family: 'Oswald', cursive;
+  font-size: large;
+}
+
+.register-button {
+  background: linear-gradient(45deg, #b6b6cf, #dbf5ff);
+  border: 2px solid black;
+  width: 15%;
+  font-size: large;
+  font-family: 'Oswald', cursive;
+}
+
+.register-new-user-summary {
+  font-family: 'Oswald', cursive;
+  color:#e0e0e0;
+  font-size: large;
+}
+
 .sound-sample-container {
   float: right;
   width: 40%;

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
+  const { login, logout, isLoggedIn } = useAuth();
+  const [loginErrorMessage, setLoginErrorMessage] = useState('');
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and register
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -10,34 +13,34 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    setLoginErrorMessage(''); // Clear any existing error messages
+
     try {
-      // API call to your server's login endpoint
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         email,
         password
       });
-      // Handle the response, e.g., store the token, update user state
       console.log(response.data);
-
-      // store token in local storage
-      localStorage.setItem('token', response.data.token);
-      setIsLoggedIn(true);
+      login(response.data.token);
       onClose(); // Close modal after successful login
     } catch (error) {
-      // Handle errors, e.g., show error message to the user
+      // The server responded with a status code outside the range of 2xx
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         console.error('Login failed:', error.response.data);
+        // Set a specific error message based on the response if available
+        setLoginErrorMessage(error.response.data.message || 'Login failed. Please check your credentials and try again.');
       } else if (error.request) {
         // The request was made but no response was received
         console.error('Login failed: No response', error.request);
+        setLoginErrorMessage('No response from the server. Please try again later.');
       } else {
-        // Something happened in setting up the request that triggered an Error
+        // An error occurred in setting up the request
         console.error('Login failed:', error.message);
+        setLoginErrorMessage('An unexpected error occurred. Please try again.');
       }
     }
-  };
+};
+
   
 
   const handleRegisterSubmit = async (e) => {
@@ -68,49 +71,53 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
 
   return (
     <Modal isOpen={isOpen} onRequestClose={onClose} shouldCloseOnOverlayClick={false}>
+      <button className="modal-close-button" onClick={onClose}>&times;</button>
       {isLogin ? (
         // Login Form
         <form onSubmit={handleLoginSubmit}>
-          <h2>Login</h2>
+          <h2 className="login-form-header">Log in to save arrangements!</h2><br />
+          {loginErrorMessage && <div className="login-error-message">{loginErrorMessage}</div>}
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-          />
+          /><br />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit">Login</button>
-          <button type="button" onClick={switchToRegister}>Go to Register</button>
+          /><br /><br />
+          <button className="login-button" type="submit">Login</button><br /><br />
+          <h3 className="register-new-user-summary">New here? Click Register to create a Mood Meadow account!</h3>
+          <button className="display-register-form" type="button" onClick={switchToRegister}>Register</button>
         </form>
       ) : (
         // Register Form
         <form onSubmit={handleRegisterSubmit}>
-          <h2>Register</h2>
+          <h2 className="register-form-header">Register</h2>
           <input
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-          />
+          /><br />
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-          />
+          /><br />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit">Register</button>
-          <button type="button" onClick={switchToLogin}>Go to Login</button>
+          /><br /><br />
+          <button className="register-button" type="submit">Register</button><br /><br />
+          <h2 className="login-summary">Already registered? Click below to log in.</h2><br />
+          <button className="display-login-form" type="button" onClick={switchToLogin}>Go to Login</button>
         </form>
       )}
     </Modal>
