@@ -3,6 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); 
+const Login = require('../models/Login');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -11,83 +12,102 @@ router.get('/', async (req, res) => {
 
 // Register route
 router.post('/register', async (req, res) => {
+  console.log('Registering new user:', req.body.email); // Log the attempt to register
   try {
-    // Check if user already exists
     let user = await User.findOne({ email: req.body.email });
     if (user) {
+      console.log('Registration failed: User already exists', req.body.email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    // Create a new user
     user = new User({
       username: req.body.username,
       email: req.body.email,
       password: hashedPassword
     });
 
-    // Save the user
     await user.save();
+    console.log('User registered:', req.body.email); // Log the successful registration
 
-    // Create and return the JWT token
-    const payload = {
-      user: {
-        id: user.id
-      }
-    };
+    const payload = { user: { id: user.id } };
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET, // Make sure to have JWT_SECRET in your .env file
-      { expiresIn: '1h' }, // Token expires in one hour
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' },
       (err, token) => {
-        if (err) throw err;
+        if (err) {
+          console.error('Error signing token:', err);
+          return res.status(500).json({ message: 'Error generating token' });
+        }
+        console.log('JWT token created for user:', req.body.email);
         res.status(201).json({ token });
       }
     );
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server error');
+    console.error('Registration error:', error);
+    res.status(500).send('Server error during registration');
   }
 });
 
+
 // Login route
 router.post('/login', async (req, res) => {
+  const { usernameOrEmail, password } = req.body;
+  console.log('Attempt to login:', usernameOrEmail); // Log the login attempt
+
   try {
-    // Retrieve user from the database
-    let user = await User.findOne({ email: req.body.email });
+    const isEmail = usernameOrEmail.includes('@');
+    let user = isEmail
+      ? await User.findOne({ email: usernameOrEmail })
+      : await User.findOne({ username: usernameOrEmail });
+
     if (!user) {
+      console.log('Login failed: Invalid credentials', usernameOrEmail);
       return res.status(400).json({ message: 'Invalid Credentials' });
     }
 
-    // Compare provided password with stored hash
-    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('Login failed: Password does not match', usernameOrEmail);
       return res.status(400).json({ message: 'Invalid Credentials' });
     }
 
-    // User matched, create and assign a token
-    const payload = {
-      user: {
-        id: user.id
-      }
-    };
+    const payload = { user: { id: user.id } };
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET, // Make sure to have JWT_SECRET in your .env file
-      { expiresIn: 3600 }, // Token expires in 1 hour
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token }); // Send the token to the client
+      process.env.JWT_SECRET,
+      { expiresIn: 3600 },
+      async (err, token) => {
+        if (err) {
+          console.error('Error signing token:', err);
+          return res.status(500).json({ message: 'Error generating token' });
+        }
+
+        const loginRecord = new Login({
+          identifier: usernameOrEmail,
+          date: new Date()
+        });
+
+        try {
+          await loginRecord.save();
+          console.log('Login record saved for:', usernameOrEmail); // Log the saved login record
+        } catch (saveError) {
+          console.error('Error saving login record:', saveError);
+          // Consider not failing the entire login process if only the record save fails
+        }
+        
+        console.log('Successful login for:', usernameOrEmail);
+        res.json({ token });
       }
     );
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server error');
+    console.error('Login error:', error);
+    res.status(500).send('Server error during login');
   }
 });
 

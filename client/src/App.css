@@ -264,8 +264,8 @@ footer {
   width: 50px;
   height: 50px;
   border-radius: 100%;
-  float: right;
-  position: relative;
+  float: right !important;
+  position: relative !important;
 }
 
 .login-logout-button:hover {
@@ -285,6 +285,11 @@ footer {
 .login-error-message {
   font-family: 'Oswald', cursive;
   color:#f38080
+}
+
+.registration-error-message {
+  font-family: 'Oswald', cursive;
+  color: #f38080
 }
 
 .register-form-header {
@@ -312,6 +317,39 @@ footer {
   font-family: 'Oswald', cursive;
   color:#e0e0e0;
   font-size: large;
+}
+
+.sort-by-buttons {
+  font-family: 'Oswald', cursive;
+  font-size: large;
+  font-weight: bold;
+}
+
+.sort-by-name-button {
+  background: linear-gradient(180deg, #e6e19e, #a39f6d);
+  margin: 10px;
+}
+
+.sort-by-name-button:hover {
+  background: yellow;
+}
+
+.sort-by-popularity-button {
+  background: linear-gradient(180deg, #8ae39c, #6da378);
+  margin: 10px;
+}
+
+.sort-by-popularity-button:hover {
+  background: green;
+}
+
+.sort-by-age-button {
+  background: linear-gradient(180deg, #9eb7e6, #6d72a3);
+  margin: 10px;
+}
+
+.sort-by-age-button:hover {
+  background: #9a62de;
 }
 
 .sound-sample-container {
@@ -354,6 +392,12 @@ footer {
   background-color: #cfc; /* Glow effect color */
   color: black;
   /* Add additional styling for when a sound is placed */
+}
+
+.make-private-checkbox {
+  padding-left: 20px;
+  font-family: 'Oswald', cursive;
+  font-size: large;
 }
 
 /* In your CSS file */

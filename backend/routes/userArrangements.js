@@ -16,13 +16,14 @@ router.get('/', async (req, res) => {
 router.post('/save', auth, async (req, res) => {
   // Access req.user.id to get the user ID from the token
   try {
-    const { sounds } = req.body;
+    const { sounds, isPrivate } = req.body;
     const userId = req.user.id; // Extracted by auth middleware
 
     // Create a new user arrangement
     const newArrangement = new UserArrangement({
       userId,
       sounds,
+      isPrivate,
     });
 
     // Save the arrangement to the database

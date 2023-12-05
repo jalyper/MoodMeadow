@@ -6,8 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
   const { login, logout, isLoggedIn } = useAuth();
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('');
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and register
   const [username, setUsername] = useState('');
+  const [usernameOrEmail, setUserNameOrEmail] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -17,7 +19,7 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, {
-        email,
+        usernameOrEmail,
         password
       });
       console.log(response.data);
@@ -39,7 +41,7 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
         setLoginErrorMessage('An unexpected error occurred. Please try again.');
       }
     }
-};
+  };
 
   
 
@@ -54,9 +56,11 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
       });
       // Handle the response, e.g., log the user in or confirm account creation
       console.log(response.data);
+      console.log('Successfully registered.');
       onClose(); // Close modal after successful registration
     } catch (error) {
       // Handle errors, e.g., show error message to the user
+      setRegistrationErrorMessage('Registration failed.', error.response.data);
       console.error('Registration failed:', error.response.data);
     }
   };
@@ -74,14 +78,14 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
       <button className="modal-close-button" onClick={onClose}>&times;</button>
       {isLogin ? (
         // Login Form
-        <form onSubmit={handleLoginSubmit}>
+        <form id="login-form" onSubmit={handleLoginSubmit}>
           <h2 className="login-form-header">Log in to save arrangements!</h2><br />
           {loginErrorMessage && <div className="login-error-message">{loginErrorMessage}</div>}
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="username"
+            placeholder="Username/Email"
+            value={usernameOrEmail}
+            onChange={(e) => setUserNameOrEmail(e.target.value)}
           /><br />
           <input
             type="password"
@@ -95,8 +99,9 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
         </form>
       ) : (
         // Register Form
-        <form onSubmit={handleRegisterSubmit}>
+        <form id='registration-form' onSubmit={handleRegisterSubmit}>
           <h2 className="register-form-header">Register</h2>
+          {registrationErrorMessage && <div className="registration-error-message">{registrationErrorMessage}</div>}
           <input
             type="text"
             placeholder="Username"

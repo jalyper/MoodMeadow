@@ -10,6 +10,7 @@ import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 
 function Create() {
+  const [isPrivate, setIsPrivate] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
@@ -31,18 +32,6 @@ function Create() {
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem('token'));
   }, []);
-
-  // Step 2: Add a `handleLoginLogout` function
-  const handleLoginLogout = () => {
-    if (isLoggedIn) {
-      localStorage.removeItem('token');
-      setIsLoggedIn(false);
-      // Also update any user state if necessary
-      setUser(null);
-    } else {
-      setShowLoginModal(true); // Show the login modal if not logged in
-    }
-  };
 
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
@@ -110,6 +99,7 @@ function Create() {
   
   const handleSaveToLibrary = () => {
     if (!isLoggedIn) {
+      console.log('User not logged in, displaying modal...');
       setShowLoginModal(true);
       return;
     }
@@ -130,6 +120,7 @@ function Create() {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userArrangements/save`, {
         sounds: droppedSounds,
+        isPrivate: isPrivate,
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -152,22 +143,32 @@ function Create() {
     <DndProvider backend={HTML5Backend}>
       <div className="create-page">  
         <header className="create-header">
+
           <div className="header-content">
             <input type="text" placeholder="Search for sounds or creators..." className="search-input" />
             <h2 className="create-title">CREATE</h2>
           </div>
+
           <Link to="/" className="icon-link">
             <div className="home-icon">
-              <LoginLogoutButton /><br />
-              <span className="icon-text">Home</span>
+              <span className="icon-text">Home</span><br />
+              <LoginLogoutButton />
             </div>
+            
           </Link>
         </header>
-        
+
         <div className="sound-sample-container">
           <p className="drag-and-drop-summary">
             Drag sounds to the Arranger on the left to create your own ASMR Arrangement!  <br /><span style={{fontSize:20, color:'white'}}>You can play each sound independently to preview sounds and experiment.<br />Once you drag a sound over, you'll 
-            be able to change the pan and volume of each sound to your own satisfaction!</span></p>
+            be able to change the pan and volume of each sound to your own satisfaction!</span>
+          </p>
+          <div class="sort-by-buttons">
+            Sort by: 
+            <button className="sort-by-name-button">NAME (A-Z)</button> 
+            <button className="sort-by-popularity-button">MOST POPULAR</button> 
+            <button className="sort-by-age-button">UPLOAD DATE (NEWEST TO OLDEST)</button>
+          </div>
             {sounds.map((sound) => (
               <DraggableSound 
                 key={sound.id} 
@@ -175,7 +176,6 @@ function Create() {
                 isDropped={droppedSounds.includes(sound.id)} 
               />
             ))}
-
         </div>
         <h2 className="arranger-title">ARRANGER</h2>
         <div className="loop-toggle">
@@ -187,6 +187,7 @@ function Create() {
             />
             <b> LOOP</b>
           </label>
+          
         </div>
 
         <div className="arranger">
@@ -200,7 +201,14 @@ function Create() {
             />
           ))}
         </div>
-
+        <label className="make-private-checkbox">
+          <input
+            type="checkbox"
+            checked={isPrivate}
+            onChange={(e) => setIsPrivate(e.target.checked)}
+          />
+          <b> Make Private</b>
+        </label>    
         <button onClick={handleSaveToLibrary} className="save-to-library">Save to Library</button>    
         <LoginRegisterModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} setIsLoggedIn={setIsLoggedIn} />
         <button onClick={playAllSounds} className="play-all-button">Play</button>

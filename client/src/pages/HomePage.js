@@ -18,11 +18,11 @@ function HomePage() {
           </div>
           <h2 className="App-title">MOOD MEADOW</h2>
         </div>  
-        <a class="icon-link" href="/">
-          <div class="home-icon">
+        <div>
+          <div className="home-icon">
             <LoginLogoutButton />
           </div>
-        </a>
+        </div>
       </header>
       <LoginRegisterModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
       <div className="icon-container">
