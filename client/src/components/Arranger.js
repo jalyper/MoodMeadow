@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 
 const Arranger = ({ onDrop, index, droppedSound, audioNodes }) => {
@@ -19,13 +19,6 @@ const Arranger = ({ onDrop, index, droppedSound, audioNodes }) => {
       canDrop: !!monitor.canDrop(),
     }),
   });
-
-  // When droppedSound changes, play the sound
-  useEffect(() => {
-    if (audioRef.current && droppedSound) {
-      audioRef.current.play();
-    }
-  }, [droppedSound]);
 
   const handleVolumeChange = (e) => {
     if (audioNodes[index] && audioNodes[index].gainNode) {

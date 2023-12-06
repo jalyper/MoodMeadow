@@ -166,7 +166,7 @@ function Create() {
             Drag sounds to the Arranger on the left to create your own ASMR Arrangement!  <br /><span style={{fontSize:20, color:'white'}}>You can play each sound independently to preview sounds and experiment.<br />Once you drag a sound over, you'll 
             be able to change the pan and volume of each sound to your own satisfaction!</span>
           </p>
-          <div class="sort-by-buttons">
+          <div className="sort-by-buttons">
             Sort by: 
             <button className="sort-by-name-button">NAME (A-Z)</button> 
             <button className="sort-by-popularity-button">MOST POPULAR</button> 

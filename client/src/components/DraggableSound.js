@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
-import { audioCtx } from '../audioContext'; // Make sure the path is correct
+import { audioCtx } from '../audioContext';
 
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
+  const [trackSrc, setTrackSrc] = useState(null);
+
+  useEffect(() => {
+    // Create the audio element and source node once on mount
+    const newAudioElement = new Audio(sound.src);
+    setAudioElement(newAudioElement);
+
+    const newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
+    newTrackSrc.connect(audioCtx.destination);
+    setTrackSrc(newTrackSrc);
+
+    // Clean up the audio node on unmount
+    return () => {
+      newTrackSrc.disconnect();
+      newAudioElement.pause();
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'sound',
@@ -15,48 +32,21 @@ const DraggableSound = ({ sound, isDropped }) => {
   }));
 
   const playSound = () => {
-    // Create a new audio element and source node each time we play a sound
-    // Only create a new Audio if it has not been created before
-    if (!audioElement) {
-      const newAudioElement = new Audio(sound.src);
-      const trackSrc = audioCtx.createMediaElementSource(newAudioElement);
-      trackSrc.connect(audioCtx.destination);
-      setAudioElement(newAudioElement);
-  
-      // We need to wait for the state update, so we use the callback form of the play method
-      newAudioElement.onloadeddata = () => {
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().then(() => {
-            console.log('Playback resumed successfully');
-            newAudioElement.play();
-            setIsPlaying(true); // Set the playing state to true
-          });
-        } else {
-          newAudioElement.play();
-          setIsPlaying(true); // Set the playing state to true
-        }
-      };
-    } else {
-      // If audioElement already exists, we check if the context is suspended and play it
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().then(() => {
-          console.log('Playback resumed successfully');
-          audioElement.play();
-          setIsPlaying(true); // Set the playing state to true
-        });
-      } else {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
         audioElement.play();
-        setIsPlaying(true); // Set the playing state to true
-      }
+        setIsPlaying(true);
+      });
+    } else {
+      audioElement.play();
+      setIsPlaying(true);
     }
   };
 
   const stopSound = () => {
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
-      setIsPlaying(false);
-    }
+    audioElement.pause();
+    audioElement.currentTime = 0;
+    setIsPlaying(false);
   };
 
   return (
