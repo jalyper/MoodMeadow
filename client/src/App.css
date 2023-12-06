@@ -33,6 +33,54 @@
   position: relative;
 }
 
+.discover-header {
+  font-family: 'Oswald', cursive;
+  background: #302e2e;
+  color: #ffffff;
+  padding: 1.2rem 0;
+  display: flex; /* Added for flexbox layout */
+  align-items: center; /* Align items vertically */
+  justify-content: center; /* Center content horizontally */
+  position: relative;
+}
+
+.discover-arranger {
+  float: right;
+  position: relative;
+  margin-right: 70px;
+}
+
+.community-arrangements {
+  height: 100px;
+  flex: 1;
+  max-width: 50%;
+  overflow-y: auto;
+  height: 100vh;
+  padding: 10px;
+  float:left;
+}
+
+.community-arrangements-list {
+  float: left;
+  position: relative;
+  font-family: 'Oswald', cursive;
+  color: rgb(253, 231, 105);
+}
+
+.arrangement-item {
+  background: linear-gradient(180deg, #20a845, #19442a);
+  margin: 10px;
+  border: 2px solid black;
+  float: left;
+  position: relative;
+}
+
+.created-by-text {
+  font-size: large;
+  font-weight: bold;
+  color: black;
+}
+
 .home-icon {
   position: absolute;
   right: 1rem; /* Position the search bar to the right */
@@ -340,7 +388,7 @@ footer {
 }
 
 .sort-by-popularity-button:hover {
-  background: green;
+  background: #21db53;
 }
 
 .sort-by-age-button {

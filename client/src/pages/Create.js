@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -8,22 +8,16 @@ import { audioCtx } from '../audioContext';
 import axios from 'axios';
 import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
+import { SoundsContext } from '../contexts/SoundsContext';
 
 function Create() {
+  const [searchTerm, setSearchTerm] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [user, setUser] = useState(null);
-  const [sounds, setSounds] = useState([
-    { id: 1, name: 'Light Rain', src: '/sounds/light-rain-30-min.wav' },
-    { id: 2, name: 'Soft Sketch', src: '/sounds/Soft Sketch.wav' },
-    { id: 3, name: 'Light Rain, Drone Bass (C)', src: '/sounds/Light-Rain_Drone-Bass_C.wav' },
-    { id: 4, name: 'Soft Drone Bass (C)', src: '/sounds/Soft-Drone-Bass_C.wav' },
-    { id: 5, name: 'Soft Flute (C)', src: '/sounds/Soft-Flute_C.wav' },
-    // ... add more sound objects with src here ...
-  ]);
-  // The audioNodes state now correctly holds an object
+  const { sounds, setSounds } = useContext(SoundsContext);
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
@@ -60,6 +54,10 @@ function Create() {
       });
     }
   };
+
+  const filteredSounds = sounds.filter(sound => 
+    sound.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleDrop = (item, slotIndex) => {
     const newDroppedSounds = [...droppedSounds];
@@ -143,9 +141,14 @@ function Create() {
     <DndProvider backend={HTML5Backend}>
       <div className="create-page">  
         <header className="create-header">
-
           <div className="header-content">
-            <input type="text" placeholder="Search for sounds or creators..." className="search-input" />
+            <input 
+              type="text" 
+              placeholder="Search for sounds or creators..." 
+              className="search-input"
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <h2 className="create-title">CREATE</h2>
           </div>
 
@@ -169,7 +172,7 @@ function Create() {
             <button className="sort-by-popularity-button">MOST POPULAR</button> 
             <button className="sort-by-age-button">UPLOAD DATE (NEWEST TO OLDEST)</button>
           </div>
-            {sounds.map((sound) => (
+            {filteredSounds.map((sound) => (
               <DraggableSound 
                 key={sound.id} 
                 sound={sound}
