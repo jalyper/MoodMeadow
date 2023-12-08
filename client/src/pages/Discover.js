@@ -11,7 +11,7 @@ import LoginLogoutButton from '../components/LoginLogoutButton';
 // other imports...
 
 function Discover() {
-  const [audioNodes, setAudioNodes] = useState({});
+  const [audioNodes, setAudioNodes] = useState(Array(5).fill(null));
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
   const [communityArrangements, setCommunityArrangements] = useState([]);
@@ -33,45 +33,68 @@ function Discover() {
     fetchPublicArrangements();
   }, []);
 
-  const handleArrangementSelect = (arrangement) => {
-    // Clear any existing audio nodes
-    setAudioNodes({});
-  
-    // Initialize an array with null values for each of the 5 slots
-    let newDroppedSounds = Array(5).fill(null);
-    
-    // Replace nulls with actual sound names if they exist in the arrangement
-    newDroppedSounds = newDroppedSounds.map((_, index) => {
-      return arrangement.sounds[index] ? arrangement.sounds[index].name : null;
+  const playAllSounds = () => {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
+        console.log('Playback resumed successfully');
+        Object.values(audioNodes).forEach((audioNode) => {
+          if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
+            audioNode.trackSrc.mediaElement.play();
+          }
+        });
+      });
+    } else {
+      Object.values(audioNodes).forEach((audioNode) => {
+        if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
+          audioNode.trackSrc.mediaElement.play();
+        }
+      });
+    }
+  };  
+
+  const clearLoadedSounds = () => {
+    // Iterate over each audioNode and check if it's not null before accessing properties
+    Object.values(audioNodes).forEach((audioNode) => {
+      if (audioNode && audioNode.audioElement) {
+        audioNode.audioElement.pause();
+        audioNode.audioElement.currentTime = 0;
+      }
     });
   
-    // Update the droppedSounds state with the names of the sounds
-    setDroppedSounds(newDroppedSounds);
+    // Reset the state to an array of nulls if you have a fixed number of slots
+    setDroppedSounds(Array(5).fill(null));
+    // Reset the audioNodes state to an array of nulls to match the initial state structure
+    setAudioNodes(Array(5).fill(null));
+  };
   
-    // Create new audio elements and nodes for the sounds
-    const newAudioNodes = newDroppedSounds.reduce((nodes, soundName, index) => {
-      if (soundName) {
-        // Find the sound object by name from the arrangement to get the src
-        const sound = arrangement.sounds.find(s => s.name === soundName);
+
+  const handleLoadArrangement = (arrangement) => {
+    // Start with an array filled with null values
+    let newAudioNodes = Array(5).fill(null);
   
-        if (sound && sound.src) {
-          const audioElement = new Audio(sound.src);
-          audioElement.loop = isLooping;
-          const trackSrc = audioCtx.createMediaElementSource(audioElement);
-          const gainNode = audioCtx.createGain();
-          const pannerNode = audioCtx.createStereoPanner();
+    // Map over the arrangement's sounds, up to the first 5 sounds
+    arrangement.sounds.slice(0, 5).forEach((sound, index) => {
+      if (sound) {
+        const audioElement = new Audio(sound.src);
+        audioElement.loop = isLooping; // Assuming isLooping is part of your component's state
+        const trackSrc = audioCtx.createMediaElementSource(audioElement);
+        const gainNode = audioCtx.createGain();
+        const pannerNode = audioCtx.createStereoPanner();
   
-          trackSrc.connect(gainNode).connect(pannerNode).connect(audioCtx.destination);
+        trackSrc.connect(gainNode).connect(pannerNode).connect(audioCtx.destination);
   
-          nodes[index] = { trackSrc, gainNode, pannerNode, audioElement };
-        }
+        // Set the audio node at the corresponding index
+        newAudioNodes[index] = { trackSrc, gainNode, pannerNode, audioElement };
       }
-      return nodes;
-    }, {});
+    });
   
-    // Update the audioNodes state with new audio nodes
+    // Update the audioNodes state
     setAudioNodes(newAudioNodes);
-  };  
+  
+    // Update the droppedSounds state with the names of the sounds,
+    // or null for slots that don't have a sound
+    setDroppedSounds(arrangement.sounds.slice(0, 5).map(sound => sound ? sound.name : null));
+  };
 
   const handleSaveToLibrary = async () => {
     // Assuming you have the token and selectedArrangement is an object with the arrangement data
@@ -89,13 +112,14 @@ function Discover() {
         });
   
         if (response.status === 201) {
-          // Handle successful save, maybe a message to the user
+          console.log('Saved successfully!');
         }
       } catch (error) {
+        console.log('Saving failed. Error: ', error);
         // Handle errors, such as showing a message to the user
       }
     } else {
-      // Handle the case where the user is not logged in
+      console.log('Login failed.');
     }
   };  
 
@@ -146,7 +170,7 @@ function Discover() {
         <div className="community-arrangements">
             <CommunityArrangementList 
                 arrangements={communityArrangements} 
-                onSelect={handleArrangementSelect} 
+                onSelect={handleLoadArrangement} 
             />
             
         </div>
@@ -165,21 +189,22 @@ function Discover() {
           </div>
 
           <div className="arranger">
-            {droppedSounds.map((droppedSoundName, index) => {
-              // Find the audio node for the current sound name
-              const audioNode = audioNodes[index];
-              
+            {droppedSounds.map((droppedSound, index) => {              
               return (
                 <Arranger 
                   key={index} 
                   onDrop={handleDrop} 
                   index={index} 
-                  droppedSound={droppedSoundName}
-                  audioNode={audioNode} // Pass the audio node to the Arranger
+                  droppedSound={droppedSound}
+                  audioNodes={audioNodes} // Pass the audio node to the Arranger
                 />
+                
               );
             })}
           </div>
+          <button onClick={playAllSounds}>Play</button>
+          <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
+          <button onClick={handleSaveToLibrary}>Save to Library</button>
         </div>
       </div>
     </DndProvider>

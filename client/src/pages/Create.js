@@ -114,28 +114,40 @@ function Create() {
       setSaveMessage('Cannot save an empty arrangement. Please add some sounds.');
       return; // Exit the function early if the validation fails
     }
-
+  
+    // Map sound names to sound objects
+    const soundObjects = droppedSounds
+      .filter(soundName => soundName) // Filter out any nulls
+      .map(soundName => {
+        // Assuming you have a way to get the full sound object from the sound name
+        const fullSoundObject = sounds.find(sound => sound.name === soundName);
+        return fullSoundObject || null; // Return the full sound object or null if not found
+      })
+      .filter(soundObject => soundObject); // Filter out any nulls that were not found
+  
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userArrangements/save`, {
-        sounds: droppedSounds,
+        sounds: soundObjects,
         isPrivate: isPrivate,
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-  
+      
       if (response.status === 201) {
         console.log('Saved to library', response.data);
         setSaveMessage('Arrangement saved successfully!');
         // Additional UI feedback can be provided here
+      } else if (response.status === 400) {
+        setSaveMessage('400 (Bad Request)');
       }
     } catch (error) {
-      console.error('Error saving to library', error.response.data);
+      console.error('Error saving to library', error.response?.data || error.message);
       setSaveMessage('Failed to save arrangement. Please make sure you are logged in and try again.');
       // Handle errors, possibly show user feedback
     }
-  };
+  };  
   
   return (
     <DndProvider backend={HTML5Backend}>

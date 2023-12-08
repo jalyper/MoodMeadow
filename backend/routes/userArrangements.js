@@ -38,6 +38,11 @@ router.post('/save', auth, async (req, res) => {
 
     const { sounds, isPrivate, originalArrangementId } = req.body;
 
+    // Validate each sound in the sounds array
+    if (!sounds.every(sound => sound && sound.name && sound.src)) {
+      return res.status(400).json({ message: 'Each sound must have a name and a source.' });
+    }
+
     // Create a new user arrangement with the username from the user document
     const newArrangement = new UserArrangement({
       userId,

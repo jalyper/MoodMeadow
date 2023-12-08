@@ -4,6 +4,9 @@ import { useDrop } from 'react-dnd';
 const Arranger = ({ onDrop, index, droppedSound, audioNodes }) => {
   const audioRef = useRef();  // Create a ref for the audio element
 
+  // Check if audioNodes[index] is not null or undefined
+  const isValidAudioNode = audioNodes[index] && audioNodes[index].audioElement;
+
   const [{ canDrop, isOver }, drop] = useDrop({
     accept: 'sound',
     drop: (item, monitor) => {
@@ -36,34 +39,33 @@ const Arranger = ({ onDrop, index, droppedSound, audioNodes }) => {
 
   return (
     <div ref={drop} className={`sound-slot ${isOver && canDrop ? 'over' : ''}`}>
-      {droppedSound ? (
+      {droppedSound && isValidAudioNode ? (
         <>
           <div className="dropped-sound-text">{droppedSound}</div>
-          {/* Bind the audioRef to the audio element */}
-          <audio ref={audioRef} src={audioNodes[index]?.audioElement?.src} loop={true} hidden />
+          <audio ref={audioRef} src={audioNodes[index].audioElement.src} loop={true} hidden />
           <div className="controls">
-            <label>
+            <label className='volume-label'>
               Volume:
-              <input
+              <input 
+                className="volume-control"
                 type="range"
                 min="0"
                 max="1"
                 step="0.01"
                 defaultValue="1"
                 onChange={handleVolumeChange}
-                className="volume-control"
               />
             </label>
-            <label>
+            <label className='pan-label'>
               Pan:
-              <input
+              <input 
+                className="pan-control"
                 type="range"
                 min="-1"
                 max="1"
                 step="0.01"
                 defaultValue="0"
                 onChange={handlePanChange}
-                className="pan-control"
               />
             </label>
           </div>

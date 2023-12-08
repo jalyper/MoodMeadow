@@ -47,7 +47,7 @@
 .discover-arranger {
   float: right;
   position: relative;
-  margin-right: 70px;
+  margin-right: 15%;
 }
 
 .community-arrangements {
@@ -207,7 +207,7 @@ footer {
 }
 
 .arranger {
-  width: 50%;
+  width: 100%;
   border: 2px solid #574444; /* Style as needed for the drop zone */
   margin: 20px 20px;
   position: relative;
@@ -495,5 +495,25 @@ footer {
 .controls {
   float: right;
   margin: -15px;
+  padding-top: 8px;
   padding-right: 20px;
 }
+
+.pan-control {
+  width: 60px;
+  height: 5px;
+}
+
+.pan-label {
+  font-size: small;
+}
+
+.volume-control {
+  width: 60px;
+  height: 5px;
+}
+
+.volume-label {
+  font-size: small;
+}
+

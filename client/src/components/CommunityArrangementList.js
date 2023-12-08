@@ -1,21 +1,33 @@
 import React from 'react';
 
 function CommunityArrangementList({ arrangements, onSelect }) {
+
+    function showSounds(arrangement) {
+        console.log('Showing sounds for arrangement:', arrangement.sounds);
+        // Ensure sound is not null before trying to access its properties
+        arrangement.sounds.forEach((sound, index) => {
+            if (sound) {
+                console.log(`Sound ${index + 1}:`, sound.name);
+            }
+        });
+    }
+
     return (
         <div className="community-arrangements-list">
             {arrangements.map(arrangement => (
                 <div 
-                    key={arrangement._id} // Make sure you use the correct identifier property, typically `_id` in MongoDB
+                    key={arrangement._id} 
                     className="arrangement-item"
                 >
-                    {/* Assuming `userName` is the property holding the author's name */}
                     <p className="created-by-text">Created by: {arrangement.username}</p> 
-                    {/* Assuming `sounds` is an array of sound names */}
                     <ul>
-                        {arrangement.sounds.map((sound, index) => (
-                            <li key={index}>{sound}</li>
+                        {arrangement.sounds
+                            .filter(sound => sound !== null) // Filter out null values
+                            .map((sound, index) => (
+                                <li key={index}>sound: {sound.name}</li>
                         ))}
                     </ul>
+                    <button onClick={() => showSounds(arrangement)}>Show Sounds --debug--</button>
                     <button onClick={() => onSelect(arrangement)}>Load Arrangement</button>
                 </div>
             ))}
