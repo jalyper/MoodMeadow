@@ -172,36 +172,32 @@ function Discover() {
                 arrangements={communityArrangements} 
                 onSelect={handleLoadArrangement} 
             />
-            
         </div>
-        <div className="discover-arranger">
-          <h2 className="arranger-title">ARRANGER</h2>
-          <div className="loop-toggle">
-            <label>
-              <input
-                type="checkbox"
-                checked={isLooping}
-                onChange={(e) => setIsLooping(e.target.checked)}
-              />
-              <b> LOOP</b>
-            </label>
-            
-          </div>
-
-          <div className="arranger">
-            {droppedSounds.map((droppedSound, index) => {              
-              return (
-                <Arranger 
-                  key={index} 
-                  onDrop={handleDrop} 
-                  index={index} 
-                  droppedSound={droppedSound}
-                  audioNodes={audioNodes} // Pass the audio node to the Arranger
-                />
-                
-              );
-            })}
-          </div>
+        <h2 className="arranger-title-discover-page">ARRANGER</h2>
+        <div className="arranger-discover-page">
+          {droppedSounds.map((droppedSound, index) => {              
+            return (
+              <Arranger 
+                key={index} 
+                onDrop={handleDrop} 
+                index={index} 
+                droppedSound={droppedSound}
+                audioNodes={audioNodes} // Pass the audio node to the Arranger
+              /> 
+            );
+          })}
+        </div>
+        <div className="loop-toggle-discover-page">
+          <label>
+            <input
+              type="checkbox"
+              checked={isLooping}
+              onChange={(e) => setIsLooping(e.target.checked)}
+            />
+            <b> LOOP</b>
+          </label>
+        </div>
+        <div className='discover-page-button-group'>
           <button onClick={playAllSounds}>Play</button>
           <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
           <button onClick={handleSaveToLibrary}>Save to Library</button>

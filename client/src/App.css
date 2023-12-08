@@ -44,10 +44,9 @@
   position: relative;
 }
 
-.discover-arranger {
-  float: right;
-  position: relative;
-  margin-right: 15%;
+.discover-page-button-group {
+  padding-right: 20px;
+  float: right; 
 }
 
 .community-arrangements {
@@ -206,11 +205,31 @@ footer {
   font-size: 100px;
 }
 
-.arranger {
-  width: 100%;
+.arranger-title-discover-page {
+  float: right;
+  font-family: 'Oswald', cursive;
+  font-size: 100px;
+  padding-right: 20px;
+}
+
+.arranger-discover-page {
+  width: 40%;
   border: 2px solid #574444; /* Style as needed for the drop zone */
   margin: 20px 20px;
   position: relative;
+  float: right;
+}
+
+.arranger-discover-page-container {
+  margin-left: 20px;
+  padding-left: 10px;
+  position: relative;
+}
+
+.arranger-create-page {
+  width: 50%;
+  border: 2px solid black;
+  margin: 20px 20px;
 }
 
 .dropped-sound-text {
@@ -490,6 +509,14 @@ footer {
   color: white;
   font-size: x-large;
   font-family: 'Oswald', cursive;
+}
+
+.loop-toggle-discover-page {
+  margin-left: 20px;
+  color: white;
+  font-size: x-large;
+  font-family: 'Oswald', cursive;
+  float: left;
 }
 
 .controls {

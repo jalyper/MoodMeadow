@@ -205,7 +205,7 @@ function Create() {
           
         </div>
 
-        <div className="arranger">
+        <div className="arranger-create-page">
           {droppedSounds.map((droppedSound, index) => (
             <Arranger 
               key={index} 
