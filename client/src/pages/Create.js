@@ -262,7 +262,7 @@ function Create() {
         <button onClick={playAllSounds} className="play-all-button">Play</button>
         <button onClick={clearDroppedSounds} className="clear-button">Clear</button>
         {saveMessage && <div className="saved-to-library-result"> {saveMessage}</div>}
-        <p className="save-to-library-summary">You can save your arrangement to your Library, where you can choose to publish it to the Discover page for the Mood Meadow community to experience!</p>
+        <p className="save-to-library-summary">If you'd like to share your creation with the Mood Meadow community, click Save to Library with "Make Private" unchecked!</p>
       </div>
     </DndProvider>
   );
