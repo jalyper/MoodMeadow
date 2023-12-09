@@ -14,6 +14,7 @@ function Discover() {
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [communityArrangements, setCommunityArrangements] = useState([]);
   const [selectedArrangement, setSelectedArrangement] = useState(null);
   const [originalAuthor, setOriginalAuthor] = useState(null);
@@ -51,6 +52,7 @@ function Discover() {
             audioNode.trackSrc.mediaElement.play();
           }
         });
+        setIsPlaying(true);
       });
     } else {
       Object.values(audioNodes).forEach((audioNode) => {
@@ -58,10 +60,22 @@ function Discover() {
           audioNode.trackSrc.mediaElement.play();
         }
       });
+      setIsPlaying(true);
     }
   };  
 
+  const stopAllSounds = () => {
+    Object.keys(audioNodes).forEach(key => {
+      if (audioNodes[key] && audioNodes[key].audioElement) {
+        audioNodes[key].audioElement.pause();
+        audioNodes[key].audioElement.currentTime = 0; // Reset the audio to the start
+      }
+    });
+    setIsPlaying(false);
+  };
+  
   const clearLoadedSounds = () => {
+    stopAllSounds();
     // Iterate over each audioNode and check if it's not null before accessing properties
     Object.values(audioNodes).forEach((audioNode) => {
       if (audioNode && audioNode.audioElement) {
@@ -224,6 +238,7 @@ function Discover() {
           </div>
           <div className='discover-page-button-group'>
             <button onClick={playAllSounds} className="play-all-button">Play</button>
+            <button onClick={stopAllSounds} className="stop-button">Stop</button>
             <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
             <button onClick={handleSaveToLibrary} className="save-to-library">Save to Library</button>
           </div>
