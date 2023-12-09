@@ -4,6 +4,7 @@ const express = require('express');
 const connectDB = require('./config/db'); // This should be the file where you set up your MongoDB connection
 const userRoutes = require('./routes/users');
 const userArrangements = require('./routes/userArrangements');
+const userLibraries = require('./routes/userLibraries');
 const cors = require('cors');
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(express.json()); // Allows us to accept JSON data in our API
 // Define Routes
 app.use('/api/users', userRoutes);
 app.use('/api/userArrangements', userArrangements);
+app.use('/api/userLibraries', userLibraries);
 
 const PORT = process.env.PORT || 5000;
 

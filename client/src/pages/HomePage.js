@@ -13,9 +13,6 @@ function HomePage() {
     <div className="homepage">
       <header className="homepage-header">
         <div className="header-content">
-          <div className="search-container">
-            <input type="text" placeholder="Search for sounds or creators..." className="search-input" />
-          </div>
           <h2 className="App-title">MOOD MEADOW</h2>
         </div>  
         <div>
@@ -42,6 +39,9 @@ function HomePage() {
           </div>
         </Link>
       </div>
+      <footer className='footer'>
+        <p id="copyright">&copy; <span id="year">2024 </span>Mood Meadow. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

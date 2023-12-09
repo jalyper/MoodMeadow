@@ -26,11 +26,9 @@ router.get('/public-arrangements', async (req, res) => {
 });
 
 router.post('/save', auth, async (req, res) => {
-  // Extracted by auth middleware
   const userId = req.user.id; 
 
   try {
-    // Find the user by ID and get the username
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -38,23 +36,30 @@ router.post('/save', auth, async (req, res) => {
 
     const { sounds, isPrivate, originalArrangementId } = req.body;
 
-    // Validate each sound in the sounds array
     if (!sounds.every(sound => sound && sound.name && sound.src)) {
       return res.status(400).json({ message: 'Each sound must have a name and a source.' });
     }
 
-    // Create a new user arrangement with the username from the user document
+    let totalSavesIncremented = false;
+    if (originalArrangementId) {
+      // Find and update the original arrangement
+      const originalArrangement = await UserArrangement.findById(originalArrangementId);
+      if (originalArrangement) {
+        originalArrangement.totalSaves += 1;
+        await originalArrangement.save();
+        totalSavesIncremented = true;
+      }
+    }
+
+    // Create a new user arrangement
     const newArrangement = new UserArrangement({
       userId,
-      username: user.username, // Add the username here
+      username: user.username,
       sounds,
       isPrivate,
-      totalSaves: originalArrangementId ? 1 : 0,
-      // Set originalArrangementId if it's a save of another arrangement
-      originalArrangementId: originalArrangementId || undefined
+      originalArrangementId: totalSavesIncremented ? originalArrangementId : undefined
     });
 
-    // Save the arrangement to the database
     await newArrangement.save();
     res.status(201).json(newArrangement);
   } catch (error) {

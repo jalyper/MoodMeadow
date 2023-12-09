@@ -27,7 +27,6 @@ function CommunityArrangementList({ arrangements, onSelect }) {
                                 <li key={index}>sound: {sound.name}</li>
                         ))}
                     </ul>
-                    <button onClick={() => showSounds(arrangement)}>Show Sounds --debug--</button>
                     <button onClick={() => onSelect(arrangement)}>Load Arrangement</button>
                 </div>
             ))}

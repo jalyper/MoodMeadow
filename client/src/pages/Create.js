@@ -106,47 +106,65 @@ function Create() {
   };
 
   const saveArrangement = async () => {
-    // Retrieve the token from local storage (or your state management)
     const token = localStorage.getItem('token');
   
-    // Check if the droppedSounds array is empty or contains only null or undefined values
     if (!droppedSounds.length || droppedSounds.every(sound => sound == null)) {
       setSaveMessage('Cannot save an empty arrangement. Please add some sounds.');
-      return; // Exit the function early if the validation fails
+      return;
     }
   
-    // Map sound names to sound objects
+    // Map sound URLs to sound objects
     const soundObjects = droppedSounds
-      .filter(soundName => soundName) // Filter out any nulls
+      .filter(soundName => soundName)
       .map(soundName => {
-        // Assuming you have a way to get the full sound object from the sound name
         const fullSoundObject = sounds.find(sound => sound.name === soundName);
-        return fullSoundObject || null; // Return the full sound object or null if not found
+        return fullSoundObject || null;
       })
-      .filter(soundObject => soundObject); // Filter out any nulls that were not found
+      .filter(soundObject => soundObject);
+    console.log(soundObjects);
+    // Define helper function to post data to an endpoint
+    const postArrangement = async (endpoint, data) => {
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}${endpoint}`, data, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
   
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userArrangements/save`, {
-        sounds: soundObjects,
-        isPrivate: isPrivate,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        if (response.status === 201) {
+          console.log(`Saved to ${endpoint}`, response.data);
+          // Update UI feedback based on which endpoint was successful
         }
-      });
-      
-      if (response.status === 201) {
-        console.log('Saved to library', response.data);
-        setSaveMessage('Arrangement saved successfully!');
-        // Additional UI feedback can be provided here
-      } else if (response.status === 400) {
-        setSaveMessage('400 (Bad Request)');
+      } catch (error) {
+        console.error(`Error saving to ${endpoint}`, error.response?.data || error.message);
+        // Update UI feedback based on which endpoint had an error
       }
-    } catch (error) {
-      console.error('Error saving to library', error.response?.data || error.message);
-      setSaveMessage('Failed to save arrangement. Please make sure you are logged in and try again.');
-      // Handle errors, possibly show user feedback
-    }
+    };
+  
+
+    // Prepare the data for userArrangements, including the isPrivate property
+    const userArrangementsData = {
+      sounds: soundObjects,
+      isPrivate: isPrivate, // Only for userArrangements
+    };
+  
+    
+    // Prepare the data for userLibraries, without the isPrivate property
+    const userLibrariesData = {
+      arrangement: {
+        sounds: soundObjects,
+      }
+    };
+  
+    // Save to userArrangements
+    await postArrangement('/api/userArrangements/save', userArrangementsData);
+  
+    // Save to userLibraries
+    await postArrangement('/api/userLibraries/save', userLibrariesData);
+  
+    // Set final save message for the user
+    setSaveMessage('Arrangement saved!');
   };  
   
   return (
@@ -161,7 +179,22 @@ function Create() {
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <h2 className="create-title">CREATE</h2>
+            <Link to="/discover" className='icon-link'>
+              <div className='discover-icon'>
+                <h2 className="discover-title">DISCOVER</h2>
+              </div>
+            </Link>
+            <Link to="/create" className='icon-link'>
+              <div className='create-icon'>
+                <h2 className="create-title" style={{fontSize: 60}}>CREATE</h2>
+              </div>
+            </Link>
+            <Link to="/my-library" className='icon-link'>
+              <div className='my-library-icon'>
+                <h2 className="my-library-title">MY LIBRARY</h2>
+              </div>
+            </Link>
+
           </div>
 
           <Link to="/" className="icon-link">

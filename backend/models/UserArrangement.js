@@ -9,9 +9,9 @@ const UserArrangementSchema = new mongoose.Schema({
   }],
   username: { type: String, require: true },
   date: { type: Date, default: Date.now }, // Sets the default date to the current date/time
-  isPrivate: { type: Boolean, default: false }, // Sets the default to not private
+  isPrivate: { type: Boolean, require: true, default: false }, // Sets the default to not private
   totalSaves: { type: Number, require: true, default: 0 },
-  originalArrangementId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserArrangment' }
+  originalArrangementId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserArrangement' }
 });
 
 module.exports = mongoose.model('UserArrangement', UserArrangementSchema, 'userArrangements');

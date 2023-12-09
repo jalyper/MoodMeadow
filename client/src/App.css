@@ -33,6 +33,17 @@
   position: relative;
 }
 
+.my-library-header {
+  font-family: 'Oswald', cursive;
+  background: #302e2e;
+  color: #ffffff;
+  padding: 1.2rem 0;
+  display: flex; /* Added for flexbox layout */
+  align-items: center; /* Align items vertically */
+  justify-content: center; /* Center content horizontally */
+  position: relative;
+}
+
 .discover-header {
   font-family: 'Oswald', cursive;
   background: #302e2e;
@@ -52,22 +63,29 @@
 .community-arrangements {
   height: 100px;
   flex: 1;
-  max-width: 50%;
+  width: 50%;
   overflow-y: auto;
   height: 100vh;
   padding: 10px;
   float:left;
 }
 
+.community-arrangements-title {
+  font-family: 'Oswald', cursive;
+  font-size: 30px;
+  color: rgb(178, 222, 252);
+  background: linear-gradient(45deg, #285aa5, #0b1936);
+}
+
 .community-arrangements-list {
   float: left;
   position: relative;
   font-family: 'Oswald', cursive;
-  color: rgb(253, 231, 105);
+  color: rgb(184, 225, 253);
 }
 
 .arrangement-item {
-  background: linear-gradient(180deg, #20a845, #19442a);
+  background: linear-gradient(180deg, #557bb4, #0b1936);
   margin: 10px;
   border: 2px solid black;
   float: left;
@@ -77,7 +95,7 @@
 .created-by-text {
   font-size: large;
   font-weight: bold;
-  color: black;
+  color: rgb(15, 26, 46);
 }
 
 .home-icon {
@@ -88,11 +106,6 @@
 }
 
 .App-title {
-  position: right;
-  font-size: 4rem;
-}
-
-.create-title {
   position: right;
   font-size: 4rem;
 }
@@ -206,24 +219,40 @@ footer {
 }
 
 .arranger-title-discover-page {
-  float: right;
+  margin: 30px;
+  font-family: 'Oswald', cursive;
+  font-size: 100px;
+  padding-left: 20px;
+}
+
+.player-title-my-library-page {
   font-family: 'Oswald', cursive;
   font-size: 100px;
   padding-right: 20px;
 }
 
-.arranger-discover-page {
+.player-my-library-page {
   width: 40%;
   border: 2px solid #574444; /* Style as needed for the drop zone */
   margin: 20px 20px;
   position: relative;
-  float: right;
+  float: left;
 }
 
-.arranger-discover-page-container {
-  margin-left: 20px;
+.my-library-summary {
+  float: right;
+  margin: 20px;
+  font-family: 'Oswald', cursive;
+  font-size: x-large;
+  margin-right: 20%;
+}
+
+.arranger-discover-page {
+  margin-right: 60px;
   padding-left: 10px;
   position: relative;
+  float: right;
+  width: 40%;
 }
 
 .arranger-create-page {
@@ -544,3 +573,40 @@ footer {
   font-size: small;
 }
 
+.my-library-title {
+  margin: 10px;
+}
+
+.user-library-arrangements {
+  max-width: 100;
+  overflow-x: auto;
+  padding: 10px;
+  background: linear-gradient(180deg, #6f819c, #010205);
+}
+
+.user-library-arrangements li {
+  max-width: 100;
+  overflow-x: auto;
+  padding: 10px;
+  background: linear-gradient(to bottom, #cac8c6, #1c4e77);
+}
+
+.user-library-list div {
+  max-width: 100;
+  overflow-x: auto;
+  padding: 10px;
+  background: linear-gradient(180deg, #324053, #1c1e24);
+}
+
+.discover-title {
+  margin: 10px;
+}
+
+.create-title {
+  margin: 10px;
+}
+
+.footer {
+  background: linear-gradient(180deg, #324053, #1c1e24);
+  color: white;
+}

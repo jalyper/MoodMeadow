@@ -149,32 +149,49 @@ function Discover() {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="discover-page">
-        <header className="discover-header">
+      <header className="discover-header">
           <div className="header-content">
-            <h1>DISCOVER</h1>
+            <input 
+              type="text" 
+              placeholder="Search for sounds or creators..." 
+              className="search-input"
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Link to="/my-library" className='icon-link'>
+              <div className='my-library-icon'>
+                <h2 className="my-library-title">MY LIBRARY</h2>
+              </div>
+            </Link>
+            <Link to="/discover" className='icon-link'>
+              <div className='discover-icon'>
+                <h2 className="discover-title" style={{fontSize: 60}}>DISCOVER</h2>
+              </div>
+            </Link>
+            <Link to="/create" className='icon-link'>
+              <div className='create-icon'>
+                <h2 className="create-title">CREATE</h2>
+              </div>
+            </Link>
           </div>
+
           <Link to="/" className="icon-link">
             <div className="home-icon">
               <span className="icon-text">Home</span><br />
               <LoginLogoutButton />
             </div>
           </Link>
-        </header><br />
-        <input 
-          type="text" 
-          placeholder="Search for sounds or creators..." 
-          className="search-input"
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)}
-        /><br />
+        </header>
         <div className="community-arrangements">
+          <h3 className='community-arrangements-title'>Community Arrangements</h3>
             <CommunityArrangementList 
                 arrangements={communityArrangements} 
                 onSelect={handleLoadArrangement} 
             />
         </div>
-        <h2 className="arranger-title-discover-page">ARRANGER</h2>
+        
         <div className="arranger-discover-page">
+        <h2 className="arranger-title-discover-page">ARRANGER</h2>
           {droppedSounds.map((droppedSound, index) => {              
             return (
               <Arranger 
@@ -186,21 +203,21 @@ function Discover() {
               /> 
             );
           })}
-        </div>
-        <div className="loop-toggle-discover-page">
-          <label>
-            <input
-              type="checkbox"
-              checked={isLooping}
-              onChange={(e) => setIsLooping(e.target.checked)}
-            />
-            <b> LOOP</b>
-          </label>
-        </div>
-        <div className='discover-page-button-group'>
-          <button onClick={playAllSounds}>Play</button>
-          <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
-          <button onClick={handleSaveToLibrary}>Save to Library</button>
+          <div className="loop-toggle-discover-page">
+            <label>
+              <input
+                type="checkbox"
+                checked={isLooping}
+                onChange={(e) => setIsLooping(e.target.checked)}
+              />
+              <b> LOOP</b>
+            </label>
+          </div>
+          <div className='discover-page-button-group'>
+            <button onClick={playAllSounds} className="play-all-button">Play</button>
+            <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
+            <button onClick={handleSaveToLibrary} className="save-to-library">Save to Library</button>
+          </div>
         </div>
       </div>
     </DndProvider>
