@@ -11,7 +11,7 @@ import LoginLogoutButton from '../components/LoginLogoutButton';
 // other imports...
 
 function Discover() {
-  const [audioNodes, setAudioNodes] = useState(Array(5).fill(null));
+  const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
   const [communityArrangements, setCommunityArrangements] = useState([]);
@@ -32,6 +32,15 @@ function Discover() {
 
     fetchPublicArrangements();
   }, []);
+
+  useEffect(() => {
+    // This effect updates the loop property whenever isLooping or audioNodes change
+    Object.keys(audioNodes).forEach(key => {
+      if (audioNodes[key] && audioNodes[key].audioElement) {
+        audioNodes[key].audioElement.loop = isLooping;
+      }
+    });
+  }, [isLooping, audioNodes]);  
 
   const playAllSounds = () => {
     if (audioCtx.state === 'suspended') {
@@ -69,14 +78,14 @@ function Discover() {
   
 
   const handleLoadArrangement = (arrangement) => {
-    // Start with an array filled with null values
-    let newAudioNodes = Array(5).fill(null);
+    // Start with an empty object for newAudioNodes
+    let newAudioNodes = {};
   
-    // Map over the arrangement's sounds, up to the first 5 sounds
-    arrangement.sounds.slice(0, 5).forEach((sound, index) => {
+    // Map over the arrangement's sounds
+    arrangement.sounds.forEach((sound, index) => {
       if (sound) {
         const audioElement = new Audio(sound.src);
-        audioElement.loop = isLooping; // Assuming isLooping is part of your component's state
+        audioElement.loop = isLooping;
         const trackSrc = audioCtx.createMediaElementSource(audioElement);
         const gainNode = audioCtx.createGain();
         const pannerNode = audioCtx.createStereoPanner();
