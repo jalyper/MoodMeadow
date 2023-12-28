@@ -107,6 +107,7 @@ function Discover() {
     setDroppedSounds(Array(5).fill(null));
     // Reset the audioNodes state to an array of nulls to match the initial state structure
     setAudioNodes(Array(5).fill(null));
+    setLastLoadedArrangement(null);
   };
   
 
@@ -188,6 +189,7 @@ function Discover() {
           if (response.status === 201) {
             console.log('Saved successfully!');
             setSaveStatus('Saved successfully!');
+            setLastLoadedArrangement(null);
           }
         } catch (error) {
           // If an error occurs during the request, log the error and handle it appropriately
@@ -202,7 +204,7 @@ function Discover() {
           console.warn('User is not logged in.');
           setSaveStatus('You must log in to save arrangements.');
         }
-        if (!selectedArrangement) {
+        if (!lastLoadedArrangement) {
           console.warn('No arrangement is selected.');
           setSaveStatus('You must select an arrangement to save.');
         }
