@@ -170,13 +170,11 @@ function MyLibrary() {
                 <h2 className="discover-title">DISCOVER</h2>
               </div>
             </Link>
-
           </div>
-
+          <LoginLogoutButton />
           <Link to="/" className="icon-link">
             <div className="home-icon">
               <span className="icon-text">Home</span><br />
-              <LoginLogoutButton />
             </div>
           </Link>
         </header>

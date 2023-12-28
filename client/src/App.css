@@ -113,7 +113,8 @@
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Adjust this as needed */
+  float: right;
+  margin-left: 30%;
 }
 
 .search-container {
@@ -370,8 +371,7 @@ footer {
   width: 50px;
   height: 50px;
   border-radius: 100%;
-  float: right !important;
-  position: relative !important;
+  margin-left: 35%
 }
 
 .login-logout-button:hover {

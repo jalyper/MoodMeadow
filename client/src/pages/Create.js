@@ -196,13 +196,11 @@ function Create() {
             </Link>
 
           </div>
-
+          <LoginLogoutButton />
           <Link to="/" className="icon-link">
             <div className="home-icon">
               <span className="icon-text">Home</span><br />
-              <LoginLogoutButton />
             </div>
-            
           </Link>
         </header>
 

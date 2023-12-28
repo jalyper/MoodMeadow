@@ -265,13 +265,17 @@ function Discover() {
               </div>
             </Link>
           </div>
+          <LoginLogoutButton />
 
-          <Link to="/" className="icon-link">
-            <div className="home-icon">
-              <span className="icon-text">Home</span><br />
-              <LoginLogoutButton />
-            </div>
-          </Link>
+          <div className='right-header-content'>
+            <Link to="/" className="icon-link">
+              <div className="home-icon">
+                <span className="icon-text">Home</span><br />
+              </div>
+            </Link>
+            
+          </div>
+          
         </header>
         <div className="community-arrangements">
           <h3 className='community-arrangements-title'>Community Arrangements</h3>
