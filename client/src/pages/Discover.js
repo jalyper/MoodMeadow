@@ -37,10 +37,6 @@ function Discover() {
   }, []);
 
   useEffect(() => {
-    console.log(communityArrangements);
-  }, [communityArrangements]);
-
-  useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
     Object.keys(audioNodes).forEach(key => {
       if (audioNodes[key] && audioNodes[key].audioElement) {
@@ -56,7 +52,7 @@ function Discover() {
       const lowercasedTerm = searchTerm.toLowerCase();
       const filtered = communityArrangements.filter(arrangement => {
         const hasMatchingSound = arrangement.sounds.some(sound =>
-          sound.name && sound.name.toLowerCase().includes(lowercasedTerm)
+          sound && sound.name && sound.name.toLowerCase().includes(lowercasedTerm)
         );
         const createdByMatches = arrangement.createdBy && arrangement.createdBy.toLowerCase().includes(lowercasedTerm);
         return hasMatchingSound || createdByMatches;
@@ -191,10 +187,12 @@ function Discover() {
           // If the server responds with a status of 201 (Created), log a success message
           if (response.status === 201) {
             console.log('Saved successfully!');
+            setSaveStatus('Saved successfully!');
           }
         } catch (error) {
           // If an error occurs during the request, log the error and handle it appropriately
           console.error('Saving failed. Error: ', error);
+          setSaveStatus('Saving Failed!');
           // You might want to show a message to the user here
           // log message to user that saving failed
         }
@@ -202,12 +200,13 @@ function Discover() {
         // If the user is not logged in or no arrangement is selected, log a failure message
         if (!token) {
           console.warn('User is not logged in.');
+          setSaveStatus('You must log in to save arrangements.');
         }
         if (!selectedArrangement) {
           console.warn('No arrangement is selected.');
+          setSaveStatus('You must select an arrangement to save.');
         }
       }
-      setSaveStatus('Saved Successfully!');
     } catch (error) {
       console.error('Saving failed. Error: ', error);
       setSaveStatus('Saving Failed!');
