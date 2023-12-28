@@ -20,6 +20,8 @@ function Discover() {
   const [originalAuthor, setOriginalAuthor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredArrangements, setFilteredArrangements] = useState([]);
+  const [lastLoadedArrangement, setLastLoadedArrangement] = useState(null);
+  const [saveStatus, setSaveStatus] = useState('');
 
   useEffect(() => {
     const fetchPublicArrangements = async () => {
@@ -28,13 +30,15 @@ function Discover() {
         setCommunityArrangements(response.data);
       } catch (error) {
         console.error('Error fetching public arrangements', error);
-        // Set an error state here and display a user-friendly error message in your UI
-        setError('There was an error fetching public arrangements. Please try again later.');
       }
     };
   
     fetchPublicArrangements();
   }, []);
+
+  useEffect(() => {
+    console.log(communityArrangements);
+  }, [communityArrangements]);
 
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
@@ -80,7 +84,7 @@ function Discover() {
         // Set isPlaying to true
         setIsPlaying(true);
       });
-    } // This is the missing closing parenthesis
+    } 
   };
 
   const stopAllSounds = () => {
@@ -142,42 +146,74 @@ function Discover() {
     // Update the droppedSounds state with the names of the sounds,
     // or null for slots that don't have a sound
     setDroppedSounds(arrangement.sounds.slice(0, 5).map(sound => sound ? sound.name : null));
+
+    // Update the lastLoadedArrangement state
+    setLastLoadedArrangement(arrangement);
+    console.log(arrangement);
   };
 
+
+    
   // Function to handle saving an arrangement to the user's library
   const handleSaveToLibrary = async () => {
-    // Retrieve the user's token from local storage
-    const token = localStorage.getItem('token');
-    // Check if the user is logged in (i.e., the token exists) and an arrangement is selected
-    if (token && selectedArrangement) {
-      try {
-        // Send a POST request to the server to save the arrangement
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userArrangements/save`, {
-          sounds: selectedArrangement.sounds, // The sounds in the arrangement
-          isPrivate: false, // The privacy setting of the arrangement (public by default)
-          originalArrangementId: selectedArrangement._id, // The ID of the original arrangement
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}` // The user's authorization token
-          }
-        });
+    setSaveStatus('Saving...');
+    try {
+      console.log('handleSaveToLibrary called');
+    
+      // Retrieve the user's token from local storage
+      const token = localStorage.getItem('token');
+      console.log(`Retrieved token from local storage: ${token}`);
 
-        // If the server responds with a status of 201 (Created), log a success message
-        if (response.status === 201) {
-          console.log('Saved successfully!');
-        }
-      } catch (error) {
-        // If an error occurs during the request, log the error and handle it appropriately
-        console.log('Saving failed. Error: ', error);
-        // You might want to show a message to the user here
-        // log message to user that saving failed
-
+      // Log the state of lastLoadedArrangement
+      if (!lastLoadedArrangement) {
+        console.log('lastLoadedArrangement is null or undefined');
+      } else {
+        console.log('lastLoadedArrangement is not null or empty');
+        console.log(lastLoadedArrangement);
       }
-    } else {
-      // If the user is not logged in, log a failure message
-      console.log('Login failed.');
+      
+      // Check if the user is logged in (i.e., the token exists) and an arrangement is selected
+      if (token && lastLoadedArrangement) {
+        console.log('User is logged in and an arrangement is selected');
+        
+        try {
+          // Send a POST request to the server to save the arrangement
+          console.log('Sending POST request to save arrangement');
+          
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userLibraries/save`, {arrangement: lastLoadedArrangement }, {
+            headers: {
+              'Authorization': `Bearer ${token}` // The user's authorization token
+            }
+          });
+
+          console.log(`Received response with status code: ${response.status}`);
+          
+          // If the server responds with a status of 201 (Created), log a success message
+          if (response.status === 201) {
+            console.log('Saved successfully!');
+          }
+        } catch (error) {
+          // If an error occurs during the request, log the error and handle it appropriately
+          console.error('Saving failed. Error: ', error);
+          // You might want to show a message to the user here
+          // log message to user that saving failed
+        }
+      } else {
+        // If the user is not logged in or no arrangement is selected, log a failure message
+        if (!token) {
+          console.warn('User is not logged in.');
+        }
+        if (!selectedArrangement) {
+          console.warn('No arrangement is selected.');
+        }
+      }
+      setSaveStatus('Saved Successfully!');
+    } catch (error) {
+      console.error('Saving failed. Error: ', error);
+      setSaveStatus('Saving Failed!');
     }
   };
+
 
   const handleDrop = (item, slotIndex) => {
     const newDroppedSounds = [...droppedSounds];
@@ -274,6 +310,7 @@ function Discover() {
             <button onClick={stopAllSounds} className="stop-button">Stop</button>
             <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
             <button onClick={handleSaveToLibrary} className="save-to-library">Save to Library</button>
+            <p>{saveStatus}</p>
           </div>
         </div>
       </div>
