@@ -54,7 +54,7 @@ function Discover() {
         const hasMatchingSound = arrangement.sounds.some(sound =>
           sound && sound.name && sound.name.toLowerCase().includes(lowercasedTerm)
         );
-        const createdByMatches = arrangement.createdBy && arrangement.createdBy.toLowerCase().includes(lowercasedTerm);
+        const createdByMatches = arrangement.userId && arrangement.userId.username && arrangement.userId.username.toLowerCase().includes(lowercasedTerm);
         return hasMatchingSound || createdByMatches;
       });
       setFilteredArrangements(filtered);
