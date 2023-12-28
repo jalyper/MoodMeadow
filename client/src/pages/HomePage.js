@@ -1,17 +1,19 @@
 // pages/HomePage.js
-import React, { useState } from 'react'; // Import useState
-import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Adjust the path as necessary
-import LoginRegisterModal from '../components/LoginRegisterModal'; // Adjust the path as necessary
-import LoginLogoutButton from '../components/LoginLogoutButton';
+import React, { useState } from 'react'; // Importing useState hook from React
+import { Link } from 'react-router-dom'; // Importing Link component from react-router-dom for navigation
+import { useAuth } from '../contexts/AuthContext'; // Importing useAuth custom hook from AuthContext
+import LoginRegisterModal from '../components/LoginRegisterModal'; // Importing LoginRegisterModal component
+import LoginLogoutButton from '../components/LoginLogoutButton'; // Importing LoginLogoutButton component
 
+// HomePage component
 function HomePage() {
-  const { isLoggedIn, logout } = useAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const { isLoggedIn, logout } = useAuth(); // Destructuring isLoggedIn and logout from useAuth hook
+  const [showLoginModal, setShowLoginModal] = useState(false); // State for controlling the visibility of the LoginRegisterModal
 
+  // Rendering HomePage component
   return (
     <div className="homepage">
-      <header className="homepage-header">
+      <header className="homepage-header"> 
         <div className="header-content">
           <h2 className="App-title">MOOD MEADOW</h2>
         </div>  

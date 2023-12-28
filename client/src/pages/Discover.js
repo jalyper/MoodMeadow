@@ -19,18 +19,20 @@ function Discover() {
   const [selectedArrangement, setSelectedArrangement] = useState(null);
   const [originalAuthor, setOriginalAuthor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filteredArrangements, setFilteredArrangements] = useState([]);
 
   useEffect(() => {
-    // Fetch community arrangements from your backend and set state
     const fetchPublicArrangements = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/userArrangements/public-arrangements`);
         setCommunityArrangements(response.data);
       } catch (error) {
         console.error('Error fetching public arrangements', error);
+        // Set an error state here and display a user-friendly error message in your UI
+        setError('There was an error fetching public arrangements. Please try again later.');
       }
     };
-
+  
     fetchPublicArrangements();
   }, []);
 
@@ -43,26 +45,43 @@ function Discover() {
     });
   }, [isLooping, audioNodes]);  
 
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredArrangements(communityArrangements);
+    } else {
+      const lowercasedTerm = searchTerm.toLowerCase();
+      const filtered = communityArrangements.filter(arrangement => {
+        const hasMatchingSound = arrangement.sounds.some(sound =>
+          sound.name && sound.name.toLowerCase().includes(lowercasedTerm)
+        );
+        const createdByMatches = arrangement.createdBy && arrangement.createdBy.toLowerCase().includes(lowercasedTerm);
+        return hasMatchingSound || createdByMatches;
+      });
+      setFilteredArrangements(filtered);
+    }
+  }, [searchTerm, communityArrangements]);
+  
+  // Function to play all sounds
   const playAllSounds = () => {
+    // If the audio context is suspended
     if (audioCtx.state === 'suspended') {
+      // Resume the audio context
       audioCtx.resume().then(() => {
+        // Log a success message
         console.log('Playback resumed successfully');
+        // For each audioNode
         Object.values(audioNodes).forEach((audioNode) => {
+          // If the audioNode exists and has a trackSrc property with a mediaElement
           if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
+            // Play the mediaElement
             audioNode.trackSrc.mediaElement.play();
           }
         });
+        // Set isPlaying to true
         setIsPlaying(true);
       });
-    } else {
-      Object.values(audioNodes).forEach((audioNode) => {
-        if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
-          audioNode.trackSrc.mediaElement.play();
-        }
-      });
-      setIsPlaying(true);
-    }
-  };  
+    } // This is the missing closing parenthesis
+  };
 
   const stopAllSounds = () => {
     Object.keys(audioNodes).forEach(key => {
@@ -98,14 +117,20 @@ function Discover() {
     // Map over the arrangement's sounds
     arrangement.sounds.forEach((sound, index) => {
       if (sound) {
+        // Create a new Audio object with the sound source
         const audioElement = new Audio(sound.src);
+        // Set the loop property of the audio element to the value of isLooping
         audioElement.loop = isLooping;
+        // Create a new MediaElementAudioSourceNode from the audio element
         const trackSrc = audioCtx.createMediaElementSource(audioElement);
+        // Create a new GainNode to control the volume of the audio
         const gainNode = audioCtx.createGain();
+        // Create a new StereoPannerNode to control the panning of the audio
         const pannerNode = audioCtx.createStereoPanner();
-  
+
+        // Connect the nodes in the following order: trackSrc -> gainNode -> pannerNode -> destination
         trackSrc.connect(gainNode).connect(pannerNode).connect(audioCtx.destination);
-  
+
         // Set the audio node at the corresponding index
         newAudioNodes[index] = { trackSrc, gainNode, pannerNode, audioElement };
       }
@@ -119,32 +144,40 @@ function Discover() {
     setDroppedSounds(arrangement.sounds.slice(0, 5).map(sound => sound ? sound.name : null));
   };
 
+  // Function to handle saving an arrangement to the user's library
   const handleSaveToLibrary = async () => {
-    // Assuming you have the token and selectedArrangement is an object with the arrangement data
+    // Retrieve the user's token from local storage
     const token = localStorage.getItem('token');
+    // Check if the user is logged in (i.e., the token exists) and an arrangement is selected
     if (token && selectedArrangement) {
       try {
+        // Send a POST request to the server to save the arrangement
         const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userArrangements/save`, {
-          sounds: selectedArrangement.sounds, // assuming this is an array of sound names or IDs
-          isPrivate: false, // assuming you want to save it as public by default
-          originalArrangementId: selectedArrangement._id, // reference to the original arrangement
+          sounds: selectedArrangement.sounds, // The sounds in the arrangement
+          isPrivate: false, // The privacy setting of the arrangement (public by default)
+          originalArrangementId: selectedArrangement._id, // The ID of the original arrangement
         }, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}` // The user's authorization token
           }
         });
-  
+
+        // If the server responds with a status of 201 (Created), log a success message
         if (response.status === 201) {
           console.log('Saved successfully!');
         }
       } catch (error) {
+        // If an error occurs during the request, log the error and handle it appropriately
         console.log('Saving failed. Error: ', error);
-        // Handle errors, such as showing a message to the user
+        // You might want to show a message to the user here
+        // log message to user that saving failed
+
       }
     } else {
+      // If the user is not logged in, log a failure message
       console.log('Login failed.');
     }
-  };  
+  };
 
   const handleDrop = (item, slotIndex) => {
     const newDroppedSounds = [...droppedSounds];
@@ -208,7 +241,7 @@ function Discover() {
         <div className="community-arrangements">
           <h3 className='community-arrangements-title'>Community Arrangements</h3>
             <CommunityArrangementList 
-                arrangements={communityArrangements} 
+                arrangements={filteredArrangements} 
                 onSelect={handleLoadArrangement} 
             />
         </div>
