@@ -194,14 +194,15 @@ function Create() {
                 <h2 className="my-library-title">MY LIBRARY</h2>
               </div>
             </Link>
-
           </div>
-          <LoginLogoutButton />
-          <Link to="/" className="icon-link">
-            <div className="home-icon">
-              <span className="icon-text">Home</span><br />
-            </div>
-          </Link>
+          <div className='right-header-content'>
+            <LoginLogoutButton />
+            <Link to="/" className="icon-link">
+              <div className="home-icon">
+                <span className="icon-text">Home</span><br />
+              </div>
+            </Link>
+          </div>
         </header>
 
         <div className="sound-sample-container">

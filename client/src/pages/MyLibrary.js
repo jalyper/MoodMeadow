@@ -152,8 +152,8 @@ function MyLibrary() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="discover-page">
-        <header className="discover-header">
+      <div className="my-library-page">
+        <header className="my-library-header">
           <div className="header-content">
             <Link to="/create" className='icon-link'>
               <div className='create-icon'>
@@ -171,12 +171,14 @@ function MyLibrary() {
               </div>
             </Link>
           </div>
-          <LoginLogoutButton />
-          <Link to="/" className="icon-link">
-            <div className="home-icon">
-              <span className="icon-text">Home</span><br />
-            </div>
-          </Link>
+          <div className='right-header-content'>
+            <LoginLogoutButton />
+            <Link to="/" className="icon-link">
+              <div className="home-icon">
+                <span className="icon-text">Home</span><br />
+              </div>
+            </Link>
+          </div>
         </header>
         <div className="user-library-arrangements">
           {/* Render user's personal library arrangements */}

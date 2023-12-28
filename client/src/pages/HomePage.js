@@ -14,7 +14,7 @@ function HomePage() {
   return (
     <div className="homepage">
       <header className="homepage-header"> 
-        <div className="header-content">
+        <div className="homepage-header-content">
           <h2 className="App-title">MOOD MEADOW</h2>
         </div>  
         <div>
