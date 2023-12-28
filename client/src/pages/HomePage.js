@@ -16,12 +16,10 @@ function HomePage() {
       <header className="homepage-header"> 
         <div className="homepage-header-content">
           <h2 className="App-title">MOOD MEADOW</h2>
-        </div>  
-        <div>
-          <div className="home-icon">
-            <LoginLogoutButton />
-          </div>
         </div>
+        <div className='right-header-content'>
+            <LoginLogoutButton />
+          </div>  
       </header>
       <LoginRegisterModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
       <div className="icon-container">
