@@ -7,7 +7,8 @@ const LoginLogoutButton = () => {
   const { isLoggedIn, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async (e) => {
+    e.preventDefault();
     if (isLoggedIn) {
       logout();
     } else {

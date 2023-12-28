@@ -187,8 +187,9 @@ function MyLibrary() {
             onSelect={handleLoadArrangement}
           />
         </div>
-        <h2 className="player-title-my-library-page">PLAYER</h2>
+    
         <div className="player-my-library-page">
+
           {droppedSounds.map((droppedSound, index) => {              
             return (
               <Arranger 

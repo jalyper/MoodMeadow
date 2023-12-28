@@ -218,7 +218,7 @@ footer {
   font-size: 100px;
 }
 
-.arranger-title-discover-page {
+.player-title-discover-page {
   margin: 30px;
   font-family: 'Oswald', cursive;
   font-size: 100px;
@@ -228,15 +228,25 @@ footer {
 .player-title-my-library-page {
   font-family: 'Oswald', cursive;
   font-size: 100px;
-  padding-right: 20px;
+  padding-right: 20%;
+  opacity: 0.3;
 }
 
 .player-my-library-page {
   width: 40%;
+  height: 50%;
   border: 2px solid #574444; /* Style as needed for the drop zone */
   margin: 20px 20px;
   position: relative;
   float: left;
+}
+
+.player-title-my-library-page {
+  width: 40%;
+  
+  margin: 20px 20px;
+  position: relative;
+  float: right;
 }
 
 .my-library-summary {
@@ -247,7 +257,7 @@ footer {
   margin-right: 20%;
 }
 
-.arranger-discover-page {
+.player-discover-page {
   margin-right: 60px;
   padding-left: 10px;
   position: relative;

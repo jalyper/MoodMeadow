@@ -281,8 +281,8 @@ function Discover() {
             />
         </div>
         
-        <div className="arranger-discover-page">
-        <h2 className="arranger-title-discover-page">ARRANGER</h2>
+        <div className="player-discover-page">
+        <h2 className="player-title-discover-page">PLAYER</h2>
           {droppedSounds.map((droppedSound, index) => {              
             return (
               <Arranger 
