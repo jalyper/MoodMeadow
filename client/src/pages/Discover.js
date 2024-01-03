@@ -151,65 +151,75 @@ function Discover() {
 
 
     
-  // Function to handle saving an arrangement to the user's library
+  // This function is used to save the currently loaded arrangement to the user's library
   const handleSaveToLibrary = async () => {
+    // Set the initial save status
     setSaveStatus('Saving...');
     try {
+      // Log the function call
       console.log('handleSaveToLibrary called');
-    
+
       // Retrieve the user's token from local storage
       const token = localStorage.getItem('token');
       console.log(`Retrieved token from local storage: ${token}`);
 
-      // Log the state of lastLoadedArrangement
+      // Check if an arrangement is currently loaded
       if (!lastLoadedArrangement) {
         console.log('lastLoadedArrangement is null or undefined');
       } else {
         console.log('lastLoadedArrangement is not null or empty');
         console.log(lastLoadedArrangement);
       }
-      
-      // Check if the user is logged in (i.e., the token exists) and an arrangement is selected
+
+      // If the user is logged in and an arrangement is loaded
       if (token && lastLoadedArrangement) {
         console.log('User is logged in and an arrangement is selected');
-        
+
         try {
-          // Send a POST request to the server to save the arrangement
           console.log('Sending POST request to save arrangement');
-          
+
+          // Send a POST request to save the arrangement
           const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userLibraries/save`, {arrangement: lastLoadedArrangement }, {
             headers: {
-              'Authorization': `Bearer ${token}` // The user's authorization token
+              'Authorization': `Bearer ${token}`
             }
           });
 
           console.log(`Received response with status code: ${response.status}`);
-          
-          // If the server responds with a status of 201 (Created), log a success message
+
+          // If the arrangement was saved successfully
           if (response.status === 201) {
             console.log('Saved successfully!');
             setSaveStatus('Saved successfully!');
+            // Clear the currently loaded arrangement
             setLastLoadedArrangement(null);
           }
+
         } catch (error) {
-          // If an error occurs during the request, log the error and handle it appropriately
-          console.error('Saving failed. Error: ', error);
-          setSaveStatus('Saving Failed!');
-          // You might want to show a message to the user here
-          // log message to user that saving failed
+          // If the arrangement already exists in the library
+          if (error.response && error.response.status === 409) {
+            console.log('Arrangement already exists in library');
+            setSaveStatus('Arrangement already exists in library');
+          } else {
+            // If there was an error saving the arrangement
+            console.error('Saving failed. Error: ', error);
+            setSaveStatus('Saving Failed!');
+          }
         }
       } else {
-        // If the user is not logged in or no arrangement is selected, log a failure message
+        // If the user is not logged in
         if (!token) {
           console.warn('User is not logged in.');
           setSaveStatus('You must log in to save arrangements.');
         }
+        // If no arrangement is loaded
         if (!lastLoadedArrangement) {
           console.warn('No arrangement is selected.');
           setSaveStatus('You must select an arrangement to save.');
         }
       }
     } catch (error) {
+      // If there was an error in the function
       console.error('Saving failed. Error: ', error);
       setSaveStatus('Saving Failed!');
     }

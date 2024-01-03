@@ -1,6 +1,6 @@
 import React from 'react';
 
-function UserLibraryList({ arrangements, onSelect }) {
+function UserLibraryList({ arrangements, onSelect, onDelete }) {
   // Check if arrangements is an array
   if (!Array.isArray(arrangements)) {
     console.error('arrangements is not an array:', arrangements);
@@ -29,6 +29,7 @@ function UserLibraryList({ arrangements, onSelect }) {
             ))}
           </ul>
           <button onClick={() => onSelect(arrangement)}>Load Arrangement</button>
+          <button onClick={() => onDelete(arrangement)}>Remove</button>
         </div>
       ))}
     </div>

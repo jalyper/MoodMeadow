@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import UserLibraryList from '../components/UserLibraryList';
 import LoginLogoutButton from '../components/LoginLogoutButton';
-
+import { useAuth } from '../contexts/AuthContext';
 // other imports...
 
 function MyLibrary() {
@@ -19,14 +19,15 @@ function MyLibrary() {
   const [selectedArrangement, setSelectedArrangement] = useState(null);
   const [originalAuthor, setOriginalAuthor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const {userId} = useAuth(); // Assuming you have a custom hook for getting the user's ID
 
   useEffect(() => {
     // Fetch arrangements from the user's library
     const fetchUserLibraryArrangements = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (token) {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/userLibraries`, {
+        if (token && userId) {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/userLibraries/${userId}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -40,7 +41,7 @@ function MyLibrary() {
     };
   
     fetchUserLibraryArrangements();
-  }, []);
+  }, [userId]);
   
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
@@ -118,13 +119,34 @@ function MyLibrary() {
         newAudioNodes[index] = { trackSrc, gainNode, pannerNode, audioElement };
       }
     });
-  
+    
     // Update the audioNodes state
     setAudioNodes(newAudioNodes);
   
     // Update the droppedSounds state with the names of the sounds,
     // or null for slots that don't have a sound
     setDroppedSounds(arrangement.sounds.slice(0, 5).map(sound => sound ? sound.name : null));
+  };
+
+  const handleDeleteArrangement = async (arrangement) => {
+    console.log('arrangementId: ', arrangement._id);
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId'); // Assuming the user's ID is stored in local storage
+      console.log('userId: ', userId);
+      if (token) {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/userLibraries/${userId}/arrangements/${arrangement._id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        // Remove the deleted arrangement from the userLibraryArrangements state
+        setUserLibraryArrangements(userLibraryArrangements.filter((userLibraryArrangement) => userLibraryArrangement._id !== arrangement._id));
+      } 
+    } catch (error) {
+      console.error('Error deleting arrangement', error);
+    }
   };
 
   const handleDrop = (item, slotIndex) => {
@@ -185,6 +207,7 @@ function MyLibrary() {
           <UserLibraryList 
             arrangements={userLibraryArrangements} // Pass the arrangements array
             onSelect={handleLoadArrangement}
+            onDelete={handleDeleteArrangement}
           />
         </div>
     

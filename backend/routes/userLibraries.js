@@ -6,6 +6,26 @@ const User = require('../models/User');
 
 // You can keep the GET routes similar to fetch libraries instead of arrangements if needed
 
+router.get('/:userId', auth, async (req, res) => {
+  const { userId } = req.params;
+  console.log('userId:', userId);
+
+  try {
+    // Find the library associated with the userId
+    const userLibrary = await UserLibrary.findOne({ userId: userId });
+    console.log('userLibrary:', userLibrary);
+    
+    // If no userLibrary is found, return a 404 or an empty object/array as you see fit
+    if (!userLibrary) {
+      return res.status(404).json({ message: 'Library not found' });
+    }
+
+    // If a userLibrary is found, return it
+    res.status(200).json(userLibrary);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 router.get('/', auth, async (req, res) => {
     const userId = req.user.id;
@@ -50,6 +70,15 @@ router.post('/save', auth, async (req, res) => {
         });
         }
 
+        // Check if the arrangement already exists in the user's library
+        const doesArrangementExist = userLibrary.arrangements.some(existingArrangement => {
+            return JSON.stringify(existingArrangement.sounds) === JSON.stringify(arrangement.sounds);
+        });
+
+        if (doesArrangementExist) {
+            return res.status(409).json({ message: 'Arrangement already exists in library' });
+        }
+
         // Add the new arrangement to the user's library
         userLibrary.arrangements.push(arrangement);
 
@@ -59,6 +88,35 @@ router.post('/save', auth, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+});
+
+router.delete('/:userId/arrangements/:arrangementId', auth, async (req, res) => {
+  const { userId, arrangementId } = req.params;
+
+  try {
+    // Find the user's library
+    const userLibrary = await UserLibrary.findOne({ userId: userId });
+
+    // If no userLibrary is found, return a 404
+    if (!userLibrary) {
+      return res.status(404).json({ message: 'Library not found' });
+    }
+
+
+    // Save the updated user library to the database
+    console.log('userLibrary:', userLibrary);
+    console.log('Is arrangements an array: ', Array.isArray(userLibrary.arrangements));
+    console.log('Does arrangements have the deleted arrangement: ', userLibrary.arrangements.some(arrangement => arrangement._id.toString() === arrangementId));
+    
+    // Remove the arrangement from the user's library
+    userLibrary.arrangements = userLibrary.arrangements.filter(arrangement => arrangement._id.toString() !== arrangementId);
+    await userLibrary.save();
+
+    res.status(200).json(userLibrary);
+  } catch (error) {
+    console.log('Error:', error); // Add this line
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 });
 
 module.exports = router;
