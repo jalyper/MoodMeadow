@@ -27,7 +27,7 @@ function MyLibrary() {
       try {
         const token = localStorage.getItem('token');
         if (token && userId) {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/userLibraries/${userId}`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL_DEV}/api/userLibraries/${userId}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
