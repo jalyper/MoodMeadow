@@ -26,7 +26,7 @@ function Discover() {
   useEffect(() => {
     const fetchPublicArrangements = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/userArrangements/public-arrangements`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/userArrangements/public-arrangements`);
         setCommunityArrangements(response.data);
       } catch (error) {
         console.error('Error fetching public arrangements', error);
@@ -179,7 +179,7 @@ function Discover() {
           console.log('Sending POST request to save arrangement');
 
           // Send a POST request to save the arrangement
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/userLibraries/save`, {arrangement: lastLoadedArrangement }, {
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/userLibraries/save`, {arrangement: lastLoadedArrangement }, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
