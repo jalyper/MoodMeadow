@@ -27,7 +27,7 @@ function MyLibrary() {
       try {
         const token = localStorage.getItem('token');
         if (token && userId) {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL_DEV}/api/userLibraries/${userId}`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/userLibraries/${userId}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -135,7 +135,7 @@ function MyLibrary() {
       const userId = localStorage.getItem('userId'); // Assuming the user's ID is stored in local storage
       console.log('userId: ', userId);
       if (token) {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/api/userLibraries/${userId}/arrangements/${arrangement._id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/userLibraries/${userId}/arrangements/${arrangement._id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
