@@ -5,7 +5,7 @@ import { audioCtx } from '../audioContext';
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
-  const [trackSrc, setTrackSrc] = useState(null);
+  const [, setTrackSrc] = useState(null);
 
   useEffect(() => {
     // Create the audio element and source node once on mount
@@ -21,7 +21,7 @@ const DraggableSound = ({ sound, isDropped }) => {
       newTrackSrc.disconnect();
       newAudioElement.pause();
     };
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, [sound.src]);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'sound',

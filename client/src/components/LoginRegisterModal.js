@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
 function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
-  const { login, logout, isLoggedIn } = useAuth();
+  const { login } = useAuth();
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
   const [registrationErrorMessage, setRegistrationErrorMessage] = useState('');
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and register

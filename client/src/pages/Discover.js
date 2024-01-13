@@ -14,10 +14,8 @@ function Discover() {
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [, setIsPlaying] = useState(false);
   const [communityArrangements, setCommunityArrangements] = useState([]);
-  const [selectedArrangement, setSelectedArrangement] = useState(null);
-  const [originalAuthor, setOriginalAuthor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredArrangements, setFilteredArrangements] = useState([]);
   const [lastLoadedArrangement, setLastLoadedArrangement] = useState(null);

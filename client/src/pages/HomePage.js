@@ -7,7 +7,6 @@ import LoginLogoutButton from '../components/LoginLogoutButton'; // Importing Lo
 
 // HomePage component
 function HomePage() {
-  const { isLoggedIn, logout } = useAuth(); // Destructuring isLoggedIn and logout from useAuth hook
   const [showLoginModal, setShowLoginModal] = useState(false); // State for controlling the visibility of the LoginRegisterModal
 
   // Rendering HomePage component

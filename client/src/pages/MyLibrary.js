@@ -14,11 +14,8 @@ function MyLibrary() {
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [, setIsPlaying] = useState(false);
   const [userLibraryArrangements, setUserLibraryArrangements] = useState([]);
-  const [selectedArrangement, setSelectedArrangement] = useState(null);
-  const [originalAuthor, setOriginalAuthor] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const {userId} = useAuth(); // Assuming you have a custom hook for getting the user's ID
 
   useEffect(() => {

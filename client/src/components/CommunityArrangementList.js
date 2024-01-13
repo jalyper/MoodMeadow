@@ -1,17 +1,6 @@
 import React from 'react';
 
 function CommunityArrangementList({ arrangements, onSelect }) {
-
-    function showSounds(arrangement) {
-        console.log('Showing sounds for arrangement:', arrangement.sounds);
-        // Ensure sound is not null before trying to access its properties
-        arrangement.sounds.forEach((sound, index) => {
-            if (sound) {
-                console.log(`Sound ${index + 1}:`, sound.name);
-            }
-        });
-    }
-
     return (
         <div className="community-arrangements-list">
             {arrangements.map(arrangement => (

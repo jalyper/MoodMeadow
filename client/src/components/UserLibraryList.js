@@ -7,16 +7,6 @@ function UserLibraryList({ arrangements, onSelect, onDelete }) {
     return <div>No arrangements found or data is not valid.</div>;
   }
 
-  // Function to show sounds for an arrangement
-  function showSounds(arrangement) {
-    console.log('Showing sounds for arrangement:', arrangement.sounds);
-    arrangement.sounds.forEach((sound, index) => {
-      if (sound) {
-        console.log(`Sound ${index + 1}:`, sound.name);
-      }
-    });
-  }
-
   // Rendering the list of arrangements
   return (
     <div className="user-library-list">
