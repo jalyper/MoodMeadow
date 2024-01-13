@@ -1,7 +1,6 @@
 // pages/HomePage.js
 import React, { useState } from 'react'; // Importing useState hook from React
 import { Link } from 'react-router-dom'; // Importing Link component from react-router-dom for navigation
-import { useAuth } from '../contexts/AuthContext'; // Importing useAuth custom hook from AuthContext
 import LoginRegisterModal from '../components/LoginRegisterModal'; // Importing LoginRegisterModal component
 import LoginLogoutButton from '../components/LoginLogoutButton'; // Importing LoginLogoutButton component
 
