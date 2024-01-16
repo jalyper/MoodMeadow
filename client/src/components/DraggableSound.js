@@ -34,12 +34,22 @@ const DraggableSound = ({ sound, isDropped }) => {
   const playSound = () => {
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
-        audioElement.play();
-        setIsPlaying(true);
+        fetch(`/.netlify/functions/get-file?filename=${sound.name}`)
+          .then(response => response.text())
+          .then(url => {
+            audioElement.src = url;
+            audioElement.play();
+            setIsPlaying(true);
+          });
       });
     } else {
-      audioElement.play();
-      setIsPlaying(true);
+      fetch(`/.netlify/functions/get-file?filename=${sound.name}`)
+        .then(response => response.text())
+        .then(url => {
+          audioElement.src = url;
+          audioElement.play();
+          setIsPlaying(true);
+        });
     }
   };
 
