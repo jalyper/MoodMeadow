@@ -1,5 +1,19 @@
 // audioContext.js
 const AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
+let audioCtx;
 
-export { audioCtx };
+export function getAudioContext() {
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    return audioCtx;
+}
+
+export function resumeAudioContext() {
+    if (audioCtx) {
+        if (audioCtx.state === 'suspended') {
+            return audioCtx.resume();
+        }
+    }
+    return Promise.resolve();
+}
