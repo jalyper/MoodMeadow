@@ -16,6 +16,11 @@ exports.handler = async function(event, context) {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
+    // Check if the Authorization header exists
+    if (!event.headers.authorization) {
+        return { statusCode: 401, body: 'No Authorization header' };
+    }
+
     // Extract the JWT from the Authorization header
     const token = event.headers.authorization.split(' ')[1];
 
