@@ -13,12 +13,26 @@ exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
     if (event.httpMethod !== 'GET') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        return { 
+            statusCode: 405, 
+            body: 'Method Not Allowed',
+            headers: {
+                "Access-Control-Allow-Origin" : "*", // Allow any origin
+                "Access-Control-Allow-Methods": "GET" // Allow GET methods
+            }
+        };
     }
 
     // Check if the Authorization header exists
     if (!event.headers.authorization) {
-        return { statusCode: 401, body: 'No Authorization header' };
+        return { 
+            statusCode: 401, 
+            body: 'No Authorization header',
+            headers: {
+                "Access-Control-Allow-Origin" : "*", // Allow any origin
+                "Access-Control-Allow-Methods": "GET" // Allow GET methods
+            }
+        };
     }
 
     // Extract the JWT from the Authorization header
@@ -39,8 +53,22 @@ exports.handler = async function(event, context) {
         const url = s3.getSignedUrl('getObject', params);
 
         console.log(url);
-        return { statusCode: 200, body: url };
+        return { 
+            statusCode: 200, 
+            body: url,
+            headers: {
+                "Access-Control-Allow-Origin" : "*", // Allow any origin
+                "Access-Control-Allow-Methods": "GET" // Allow GET methods
+            }
+        };
     } catch (err) {
-        return { statusCode: 401, body: 'Invalid token' };
+        return { 
+            statusCode: 401, 
+            body: 'Invalid token',
+            headers: {
+                "Access-Control-Allow-Origin" : "*", // Allow any origin
+                "Access-Control-Allow-Methods": "GET" // Allow GET methods
+            }
+        };
     }
 };
