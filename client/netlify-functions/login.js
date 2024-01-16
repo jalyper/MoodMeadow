@@ -22,8 +22,28 @@ const connectToDb = async () => {
 exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
+    // Set CORS headers
+    const headers = {
+        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST'
+    };
+
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        // Preflight request. Reply successfully:
+        if (event.httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200, // <-- Must be 200 otherwise pre-flight call fails
+                headers: headers,
+                body: 'This was a preflight call!'
+            };
+        } else {
+            return { 
+                statusCode: 405, 
+                headers: headers,
+                body: 'Method Not Allowed' 
+            };
+        }
     }
 
     await connectToDb();
@@ -37,12 +57,20 @@ exports.handler = async function(event, context) {
                 : await User.findOne({ username: usernameOrEmail });
 
         if (!user) {
-                return { statusCode: 400, body: JSON.stringify({ message: 'Invalid Credentials' }) };
+                return { 
+                    statusCode: 400, 
+                    headers: headers,
+                    body: JSON.stringify({ message: 'Invalid Credentials' }) 
+                };
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-                return { statusCode: 400, body: JSON.stringify({ message: 'Invalid Credentials' }) };
+                return { 
+                    statusCode: 400, 
+                    headers: headers,
+                    body: JSON.stringify({ message: 'Invalid Credentials' }) 
+                };
         }
 
         const payload = { user: { id: user.id } };
@@ -56,8 +84,16 @@ exports.handler = async function(event, context) {
 
         await loginRecord.save();
 
-        return { statusCode: 200, body: JSON.stringify({ token }) };
+        return { 
+            statusCode: 200, 
+            headers: headers,
+            body: JSON.stringify({ token }) 
+        };
     } catch (error) {
-        return { statusCode: 500, body: JSON.stringify({ error: error.message })};
+        return { 
+            statusCode: 500, 
+            headers: headers,
+            body: JSON.stringify({ error: error.toString() }) 
+        };
     }
 };

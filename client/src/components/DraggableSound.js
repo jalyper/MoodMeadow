@@ -5,7 +5,6 @@ import { audioCtx } from '../audioContext';
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
-  const [, setTrackSrc] = useState(null);
 
   useEffect(() => {
     // Create the audio element and source node once on mount
@@ -14,7 +13,6 @@ const DraggableSound = ({ sound, isDropped }) => {
 
     const newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
     newTrackSrc.connect(audioCtx.destination);
-    setTrackSrc(newTrackSrc);
 
     // Clean up the audio node on unmount
     return () => {
@@ -43,26 +41,6 @@ const DraggableSound = ({ sound, isDropped }) => {
       headers: headers,
     };
 
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
-        fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
-          .then(response => response.text())
-          .then(url => {
-            audioElement.src = url;
-            audioElement.play();
-            setIsPlaying(true);
-          });
-      });
-    } else {
-      fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
-        .then(response => response.text())
-        .then(url => {
-          audioElement.src = url;
-          audioElement.play();
-          setIsPlaying(true);
-        });
-    }
-
     const playAudio = () => {
       fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
         .then(response => {
@@ -80,9 +58,9 @@ const DraggableSound = ({ sound, isDropped }) => {
         })
         .catch(e => console.error('Error playing sound:', e));
     };
-  
+
     if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(playAudio);
+      audioCtx.resume().then(playAudio).catch(e => console.error('Error resuming audio context:', e));
     } else {
       playAudio();
     }
