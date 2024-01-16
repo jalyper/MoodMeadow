@@ -4,7 +4,6 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableSound from '../components/DraggableSound';
 import Arranger from '../components/Arranger';
-import { audioCtx } from '../audioContext';
 import axios from 'axios';
 import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
@@ -39,7 +38,7 @@ function Create() {
 
   const playAllSounds = () => {
     const audioCtx = getAudioContext();
-    
+
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
