@@ -48,7 +48,7 @@ exports.handler = async function(event, context) {
         });
 
         // If the token is valid, get the filename from the query string
-        const filename = event.queryStringParameters.filename;
+        const filename = event.queryStringParameters.filename.split('/').pop();
         const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`, Expires: 3600};
         const url = s3.getSignedUrl('getObject', params);
 

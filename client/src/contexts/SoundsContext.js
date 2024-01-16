@@ -5,7 +5,8 @@ export const SoundsContext = createContext();
 
 export const SoundsProvider = ({ children }) => {
   const [sounds, setSounds] = useState([]);
-
+  console.log('process.env.REACT_APP_SOUND_BUCKET: ', process.env.REACT_APP_SOUND_BUCKET);
+  
   useEffect(() => {
     setSounds([
       { id: 1, name: 'Light Rain', src: process.env.REACT_APP_SOUND_BUCKET + 'light-rain-30-min.wav' },
