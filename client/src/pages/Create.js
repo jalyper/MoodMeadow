@@ -21,6 +21,7 @@ function Create() {
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
+  const audioCtx = getAudioContext();
 
   // Step 1: Set isLoggedIn based on token in localStorage
   useEffect(() => {
@@ -37,8 +38,6 @@ function Create() {
   }, [isLooping, audioNodes]);
 
   const playAllSounds = () => {
-    const audioCtx = getAudioContext();
-
     if (audioCtx.state === 'suspended') {
       resumeAudioContext().then(() => {
         console.log('Playback resumed successfully');

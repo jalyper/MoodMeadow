@@ -5,10 +5,9 @@ import { getAudioContext, resumeAudioContext } from '../audioContext';
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
+  const audioCtx = getAudioContext();
 
   useEffect(() => {
-    const audioCtx = getAudioContext();
-
     // Create the audio element and source node once on mount
     const newAudioElement = new Audio(sound.src);
     setAudioElement(newAudioElement);
