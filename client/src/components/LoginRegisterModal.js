@@ -18,7 +18,7 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
     setLoginErrorMessage(''); // Clear any existing error messages
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, {
         usernameOrEmail,
         password
       });
@@ -49,7 +49,7 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
     e.preventDefault();
     try {
       // API call to your server's register endpoint
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/register`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {
         username,
         email,
         password
