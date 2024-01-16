@@ -7,7 +7,7 @@ AWS.config.update({
     secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY
 });
 
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({ region: 'us-east-1' });
 
 exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
