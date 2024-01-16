@@ -33,10 +33,19 @@ const DraggableSound = ({ sound, isDropped }) => {
 
   const playSound = () => {
     const filename = sound.src.split('/').pop();
+    const token = localStorage.getItem('token'); // replace with your actual JWT token
+
+    const headers = new Headers();
+    headers.append('Authorization', `Bearer ${token}`);
+
+    const requestOptions = {
+      method: 'GET',
+      headers: headers,
+    };
 
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
-        fetch(`/.netlify/functions/get-file?filename=${filename}`)
+        fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
           .then(response => response.text())
           .then(url => {
             audioElement.src = url;
@@ -45,7 +54,7 @@ const DraggableSound = ({ sound, isDropped }) => {
           });
       });
     } else {
-      fetch(`/.netlify/functions/get-file?filename=${filename}`)
+      fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
         .then(response => response.text())
         .then(url => {
           audioElement.src = url;
