@@ -32,7 +32,7 @@ const DraggableSound = ({ sound, isDropped }) => {
   }));
 
   const playSound = () => {
-    const filename = sound.src.split('/').pop();
+    const filename = sound.src;
     const token = localStorage.getItem('token'); // replace with your actual JWT token
 
     const headers = new Headers();

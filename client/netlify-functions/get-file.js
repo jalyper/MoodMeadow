@@ -24,18 +24,23 @@ exports.handler = async function(event, context) {
     // Extract the JWT from the Authorization header
     const token = event.headers.authorization.split(' ')[1];
 
-    // Validate the JWT
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return { statusCode: 401, body: 'Invalid token' };
-        } else {
-            // If the token is valid, get the filename from the query string
-            const filename = event.queryStringParameters.filename;
-            const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`, Expires: 3600};
-            const url = s3.getSignedUrl('getObject', params);
+    try {
+        // Validate the JWT
+        const decoded = await new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                if (err) reject(err);
+                else resolve(decoded);
+            });
+        });
 
-            console.log(url);
-            return { statusCode: 200, body: url };
-        }
-    });
+        // If the token is valid, get the filename from the query string
+        const filename = event.queryStringParameters.filename;
+        const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`, Expires: 3600};
+        const url = s3.getSignedUrl('getObject', params);
+
+        console.log(url);
+        return { statusCode: 200, body: url };
+    } catch (err) {
+        return { statusCode: 401, body: 'Invalid token' };
+    }
 };
