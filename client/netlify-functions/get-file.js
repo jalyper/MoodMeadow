@@ -57,14 +57,20 @@ exports.handler = async function(event, context) {
 
         // If the token is valid, get the filename from the query string
         const filename = event.queryStringParameters.filename.split('/').pop();
-        const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`, Expires: 3600};
-        const url = s3.getSignedUrl('getObject', params);
+        const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`};
 
-        console.log(url);
-        return { 
-            statusCode: 200, 
-            body: url,
-            headers: headers
+        // Fetch the file from S3
+        const file = await s3.getObject(params).promise();
+
+        // Return the file in the body of the response
+        return {
+            statusCode: 200,
+            body: file.Body.toString('base64'),
+            isBase64Encoded: true,
+            headers: {
+                ...headers,
+                'Content-Type': 'audio/wav'
+            }
         };
     } catch (err) {
         return { 
