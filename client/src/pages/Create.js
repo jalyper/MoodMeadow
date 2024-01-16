@@ -9,6 +9,7 @@ import axios from 'axios';
 import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
+import { getAudioContext, resumeAudioContext } from '../audioContext';
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,6 +38,8 @@ function Create() {
   }, [isLooping, audioNodes]);
 
   const playAllSounds = () => {
+    const audioCtx = getAudioContext();
+    
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');

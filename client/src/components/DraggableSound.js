@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
-import { audioCtx } from '../audioContext';
+import { getAudioContext, resumeAudioContext } from '../audioContext';
 
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
 
   useEffect(() => {
+    const audioCtx = getAudioContext();
+
     // Create the audio element and source node once on mount
     const newAudioElement = new Audio(sound.src);
     setAudioElement(newAudioElement);
@@ -30,6 +32,7 @@ const DraggableSound = ({ sound, isDropped }) => {
   }));
 
   const playSound = () => {
+    resumeAudioContext();
     const filename = sound.src;
     const token = localStorage.getItem('token'); // replace with your actual JWT token
 
