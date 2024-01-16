@@ -1,8 +1,12 @@
 // userLibraries.js
-const UserLibrary = require('../../backend/models/UserLibrary');
-const User = require('../../backend/models/User');
+const mongoose = require('mongoose');
+const UserLibrary = require('./models/UserLibrary');
+const User = require('./models/User');
 
 exports.handler = async function(event, context) {
+    // Connect to the database
+    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
     try {
         const pathParts = event.path.split('/');
         const userId = pathParts[1];
@@ -13,16 +17,30 @@ exports.handler = async function(event, context) {
                 // Handle GET /:userId
                 const userLibrary = await UserLibrary.findOne({ userId: userId });
                 if (!userLibrary) {
+                    // Disconnect from the database
+                    await mongoose.disconnect();
+
                     return { statusCode: 404, body: JSON.stringify({ message: 'Library not found' }) };
                 }
+
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 200, body: JSON.stringify(userLibrary) };
             } else {
                 // Handle GET /
                 // You'll need to get the userId from the authenticated user
                 const userLibrary = await UserLibrary.findOne({ userId: 'authenticated-user-id' });
                 if (!userLibrary) {
+                    // Disconnect from the database
+                    await mongoose.disconnect();
+
                     return { statusCode: 404, body: JSON.stringify({ message: 'Library not found' }) };
                 }
+
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 200, body: JSON.stringify(userLibrary) };
             }
         } else if (event.httpMethod === 'POST' && pathParts[2] === 'save') {
@@ -34,6 +52,9 @@ exports.handler = async function(event, context) {
             if (typeof arrangement !== 'object' || 
                     !Array.isArray(arrangement.sounds) || 
                     !arrangement.sounds.every(sound => sound && sound.name && sound.src)) {
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 400, body: JSON.stringify({ message: 'Invalid arrangement data.' }) };
             }
 
@@ -51,27 +72,43 @@ exports.handler = async function(event, context) {
             });
 
             if (doesArrangementExist) {
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 409, body: JSON.stringify({ message: 'Arrangement already exists in library' }) };
             }
 
             userLibrary.arrangements.push(arrangement);
 
             await userLibrary.save();
+
+            // Disconnect from the database
+            await mongoose.disconnect();
+
             return { statusCode: 201, body: JSON.stringify(userLibrary) };
         } else if (event.httpMethod === 'DELETE' && userId && pathParts[2] === 'arrangements' && arrangementId) {
             // Handle DELETE /:userId/arrangements/:arrangementId
             const userLibrary = await UserLibrary.findOne({ userId: userId });
 
             if (!userLibrary) {
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 404, body: JSON.stringify({ message: 'Library not found' }) };
             }
 
             userLibrary.arrangements = userLibrary.arrangements.filter(arrangement => arrangement._id.toString() !== arrangementId);
             await userLibrary.save();
 
+            // Disconnect from the database
+            await mongoose.disconnect();
+
             return { statusCode: 200, body: JSON.stringify(userLibrary) };
         } else {
             // Handle unsupported HTTP methods
+            // Disconnect from the database
+            await mongoose.disconnect();
+
             return {
                 statusCode: 405,
                 body: 'Method Not Allowed',
@@ -79,6 +116,9 @@ exports.handler = async function(event, context) {
             };
         }
     } catch (error) {
+        // Disconnect from the database in case of error
+        await mongoose.disconnect();
+
         return { statusCode: 500, body: error.toString() };
     }
 };

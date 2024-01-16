@@ -1,37 +1,50 @@
 // register.js
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../../backend/models/User');
+const User = require('./models/User'); // Adjust the path as necessary
 
 exports.handler = async function(event, context) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
-  try {
-    const body = JSON.parse(event.body);
-    let user = await User.findOne({ email: body.email });
-    if (user) {
-      return { statusCode: 400, body: JSON.stringify({ message: 'User already exists' }) };
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(body.password, salt);
+    // Connect to the database
+    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-    user = new User({
-      username: body.username,
-      email: body.email,
-      password: hashedPassword
-    });
+    try {
+        const body = JSON.parse(event.body);
+        let user = await User.findOne({ email: body.email });
+        if (user) {
+            // Disconnect from the database
+            await mongoose.disconnect();
 
-    await user.save();
+            return { statusCode: 400, body: JSON.stringify({ message: 'User already exists' }) };
+        }
 
-    const payload = { user: { id: user.id } };
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(body.password, salt);
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        user = new User({
+            username: body.username,
+            email: body.email,
+            password: hashedPassword
+        });
 
-    return { statusCode: 201, body: JSON.stringify({ token }) };
-  } catch (error) {
-    return { statusCode: 500, body: error.toString() };
-  }
+        await user.save();
+
+        const payload = { user: { id: user.id } };
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Disconnect from the database
+        await mongoose.disconnect();
+
+        return { statusCode: 201, body: JSON.stringify({ token }) };
+    } catch (error) {
+        // Disconnect from the database in case of error
+        await mongoose.disconnect();
+
+        return { statusCode: 500, body: error.toString() };
+    }
 };

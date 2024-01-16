@@ -1,8 +1,12 @@
 // userArrangements.js
-const UserArrangement = require('../../backend/models/UserArrangement');
-const User = require('../../backend/models/User');
+const mongoose = require('mongoose');
+const UserArrangement = require('./models/UserArrangement'); // Adjust the path as necessary
+const User = require('./models/User'); // Adjust the path as necessary
 
 exports.handler = async function(event, context) {
+    // Connect to the database
+    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
     try {
         if (event.httpMethod === 'GET') {
             if (event.path.endsWith('public-arrangements')) {
@@ -10,6 +14,10 @@ exports.handler = async function(event, context) {
                 const arrangements = await UserArrangement.find({ isPrivate: false })
                     .populate('userId', 'username') 
                     .sort({ date: -1 });
+
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return {
                     statusCode: 200,
                     body: JSON.stringify(arrangements)
@@ -17,6 +25,10 @@ exports.handler = async function(event, context) {
             } else {
                 // Handle GET /
                 const userArrangements = await UserArrangement.find(!null);
+
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return {
                     statusCode: 200,
                     body: JSON.stringify(userArrangements)
@@ -30,12 +42,18 @@ exports.handler = async function(event, context) {
 
             const user = await User.findById(userId);
             if (!user) {
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 404, body: JSON.stringify({ message: 'User not found' }) };
             }
 
             const { sounds, isPrivate, originalArrangementId } = body;
 
             if (!sounds.every(sound => sound && sound.name && sound.src)) {
+                // Disconnect from the database
+                await mongoose.disconnect();
+
                 return { statusCode: 400, body: JSON.stringify({ message: 'Each sound must have a name and a source.' }) };
             }
 
@@ -70,6 +88,9 @@ exports.handler = async function(event, context) {
             };
         }
     } catch (error) {
+        // Disconnect from the database in case of error
+        await mongoose.disconnect();
+
         return { statusCode: 500, body: error.toString() };
     }
 };
