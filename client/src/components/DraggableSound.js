@@ -21,7 +21,7 @@ const DraggableSound = ({ sound, isDropped }) => {
       newTrackSrc.disconnect();
       newAudioElement.pause();
     };
-  }, [sound.src]);
+  }, [sound.src, audioCtx]);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'sound',
