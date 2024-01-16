@@ -45,6 +45,6 @@ exports.handler = async function(event, context) {
         // Disconnect from the database in case of error
         await mongoose.disconnect();
 
-        return { statusCode: 500, body: error.toString() };
+        return { statusCode: 500, body: JSON.stringify({ error: error.message })};
     }
 };
