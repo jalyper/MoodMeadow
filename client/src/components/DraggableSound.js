@@ -62,6 +62,28 @@ const DraggableSound = ({ sound, isDropped }) => {
           setIsPlaying(true);
         });
     }
+
+    const playAudio = () => {
+      fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(url => {
+          audioElement.src = url;
+          audioElement.play();
+          setIsPlaying(true);
+        })
+        .catch(e => console.error('Error playing sound:', e));
+    };
+  
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(playAudio);
+    } else {
+      playAudio();
+    }
   };
 
   const stopSound = () => {
