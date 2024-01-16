@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Arranger from '../components/Arranger';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { audioCtx } from '../audioContext';
+import { getAudioContext, resumeAudioContext } from '../audioContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import CommunityArrangementList from '../components/CommunityArrangementList';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 
-// other imports...
-
 function Discover() {
+  const audioCtx = getAudioContext();
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
@@ -64,7 +63,7 @@ function Discover() {
     // If the audio context is suspended
     if (audioCtx.state === 'suspended') {
       // Resume the audio context
-      audioCtx.resume().then(() => {
+      resumeAudioContext().then(() => {
         // Log a success message
         console.log('Playback resumed successfully');
         // For each audioNode

@@ -40,7 +40,7 @@ function Create() {
     const audioCtx = getAudioContext();
 
     if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
+      resumeAudioContext().then(() => {
         console.log('Playback resumed successfully');
         Object.values(audioNodes).forEach(({ trackSrc }) => {
           if (trackSrc && trackSrc.mediaElement) {

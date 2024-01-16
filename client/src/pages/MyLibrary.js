@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Arranger from '../components/Arranger';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { audioCtx } from '../audioContext';
+import { getAudioContext, resumeAudioContext } from '../audioContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import UserLibraryList from '../components/UserLibraryList';
@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 // other imports...
 
 function MyLibrary() {
+  const audioCtx = getAudioContext();
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
@@ -51,7 +52,7 @@ function MyLibrary() {
 
   const playAllSounds = () => {
     if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
+      resumeAudioContext().then(() => {
         console.log('Playback resumed successfully');
         Object.values(audioNodes).forEach((audioNode) => {
           if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
@@ -68,7 +69,7 @@ function MyLibrary() {
       });
       setIsPlaying(true);
     }
-  };  
+  };
 
   const stopAllSounds = () => {
     Object.keys(audioNodes).forEach(key => {
