@@ -158,10 +158,10 @@ function Create() {
     };
   
     // Save to userArrangements
-    await postArrangement('/api/userArrangements/save', userArrangementsData);
+    await postArrangement('/userArrangements/save', userArrangementsData);
   
     // Save to userLibraries
-    await postArrangement('/api/userLibraries/save', userLibrariesData);
+    await postArrangement('/userLibraries/save', userLibrariesData);
   
     // Set final save message for the user
     setSaveMessage('Arrangement saved!');
