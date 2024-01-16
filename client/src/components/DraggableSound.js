@@ -73,8 +73,10 @@ const DraggableSound = ({ sound, isDropped }) => {
         })
         .then(url => {
           audioElement.src = url;
-          audioElement.play();
-          setIsPlaying(true);
+          audioElement.oncanplaythrough = () => {
+            audioElement.play();
+            setIsPlaying(true);
+          };
         })
         .catch(e => console.error('Error playing sound:', e));
     };
