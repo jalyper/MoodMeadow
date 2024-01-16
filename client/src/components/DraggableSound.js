@@ -7,6 +7,7 @@ const DraggableSound = ({ sound, isDropped }) => {
   const [audioElement, setAudioElement] = useState(null);
   const audioCtx = getAudioContext();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Create the audio element and source node once on mount
     const newAudioElement = new Audio(sound.src);
