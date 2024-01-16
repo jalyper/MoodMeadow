@@ -32,9 +32,11 @@ const DraggableSound = ({ sound, isDropped }) => {
   }));
 
   const playSound = () => {
+    const filename = sound.src.split('/').pop();
+
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
-        fetch(`/.netlify/functions/get-file?filename=${sound.src}`)
+        fetch(`/.netlify/functions/get-file?filename=${filename}`)
           .then(response => response.text())
           .then(url => {
             audioElement.src = url;
@@ -43,7 +45,7 @@ const DraggableSound = ({ sound, isDropped }) => {
           });
       });
     } else {
-      fetch(`/.netlify/functions/get-file?filename=${sound.src}`)
+      fetch(`/.netlify/functions/get-file?filename=${filename}`)
         .then(response => response.text())
         .then(url => {
           audioElement.src = url;
