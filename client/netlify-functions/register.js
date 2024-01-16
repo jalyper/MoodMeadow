@@ -1,24 +1,36 @@
-// register.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User'); // Adjust the path as necessary
 
+let isConnected = false;
+
+const connectToDb = async () => {
+    if (isConnected) {
+        console.log('=> using existing database connection');
+        return Promise.resolve();
+    }
+
+    console.log('=> using new database connection');
+    return mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(db => {
+            isConnected = db.connections[0].readyState;
+        });
+};
+
 exports.handler = async function(event, context) {
+    context.callbackWaitsForEmptyEventLoop = false;
+
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    // Connect to the database
-    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await connectToDb();
 
     try {
         const body = JSON.parse(event.body);
         let user = await User.findOne({ email: body.email });
         if (user) {
-            // Disconnect from the database
-            await mongoose.disconnect();
-
             return { statusCode: 400, body: JSON.stringify({ message: 'User already exists' }) };
         }
 
@@ -37,14 +49,8 @@ exports.handler = async function(event, context) {
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Disconnect from the database
-        await mongoose.disconnect();
-
         return { statusCode: 201, body: JSON.stringify({ token }) };
     } catch (error) {
-        // Disconnect from the database in case of error
-        await mongoose.disconnect();
-
         return { statusCode: 500, body: JSON.stringify({ error: error.message })};
     }
 };
