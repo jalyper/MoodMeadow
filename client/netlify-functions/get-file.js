@@ -12,14 +12,25 @@ const s3 = new AWS.S3({ region: 'us-east-1' });
 exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
+    const headers = {
+        "Access-Control-Allow-Origin" : "*", // Allow any origin
+        "Access-Control-Allow-Methods": "GET, OPTIONS", // Allow GET and OPTIONS methods
+        "Access-Control-Allow-Headers": "Content-Type, Authorization" // Allow these headers
+    };
+
+    // Handle OPTIONS method for CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return { 
+            statusCode: 204, 
+            headers: headers
+        };
+    }
+
     if (event.httpMethod !== 'GET') {
         return { 
             statusCode: 405, 
             body: 'Method Not Allowed',
-            headers: {
-                "Access-Control-Allow-Origin" : "*", // Allow any origin
-                "Access-Control-Allow-Methods": "GET" // Allow GET methods
-            }
+            headers: headers
         };
     }
 
@@ -28,10 +39,7 @@ exports.handler = async function(event, context) {
         return { 
             statusCode: 401, 
             body: 'No Authorization header',
-            headers: {
-                "Access-Control-Allow-Origin" : "*", // Allow any origin
-                "Access-Control-Allow-Methods": "GET" // Allow GET methods
-            }
+            headers: headers
         };
     }
 
@@ -56,19 +64,13 @@ exports.handler = async function(event, context) {
         return { 
             statusCode: 200, 
             body: url,
-            headers: {
-                "Access-Control-Allow-Origin" : "*", // Allow any origin
-                "Access-Control-Allow-Methods": "GET" // Allow GET methods
-            }
+            headers: headers
         };
     } catch (err) {
         return { 
             statusCode: 401, 
             body: 'Invalid token',
-            headers: {
-                "Access-Control-Allow-Origin" : "*", // Allow any origin
-                "Access-Control-Allow-Methods": "GET" // Allow GET methods
-            }
+            headers: headers
         };
     }
 };

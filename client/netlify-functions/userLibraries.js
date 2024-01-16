@@ -4,6 +4,23 @@ const UserLibrary = require('./models/UserLibrary');
 const User = require('./models/User');
 
 exports.handler = async function(event, context) {
+    context.callbackWaitsForEmptyEventLoop = false;
+
+    // Set CORS headers
+    const headers = {
+        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    };
+
+    // Handle OPTIONS method for CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 204,
+            headers: headers
+        };
+    }
+
     // Connect to the database
     await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -20,13 +37,21 @@ exports.handler = async function(event, context) {
                     // Disconnect from the database
                     await mongoose.disconnect();
 
-                    return { statusCode: 404, body: JSON.stringify({ message: 'Library not found' }) };
+                    return { 
+                        statusCode: 404, 
+                        headers: headers,
+                        body: JSON.stringify({ message: 'Library not found' }) 
+                    };
                 }
 
                 // Disconnect from the database
                 await mongoose.disconnect();
 
-                return { statusCode: 200, body: JSON.stringify(userLibrary) };
+                return { 
+                    statusCode: 200, 
+                    headers: headers,
+                    body: JSON.stringify(userLibrary) 
+                };
             } else {
                 // Handle GET /
                 // You'll need to get the userId from the authenticated user
@@ -35,13 +60,21 @@ exports.handler = async function(event, context) {
                     // Disconnect from the database
                     await mongoose.disconnect();
 
-                    return { statusCode: 404, body: JSON.stringify({ message: 'Library not found' }) };
+                    return { 
+                        statusCode: 404, 
+                        headers: headers,
+                        body: JSON.stringify({ message: 'Library not found' }) 
+                    };
                 }
 
                 // Disconnect from the database
                 await mongoose.disconnect();
 
-                return { statusCode: 200, body: JSON.stringify(userLibrary) };
+                return { 
+                    statusCode: 200, 
+                    headers: headers,
+                    body: JSON.stringify(userLibrary) 
+                };
             }
         } else if (event.httpMethod === 'POST' && pathParts[2] === 'save') {
             // Handle POST /save

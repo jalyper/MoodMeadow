@@ -4,6 +4,23 @@ const UserArrangement = require('./models/UserArrangement'); // Adjust the path 
 const User = require('./models/User'); // Adjust the path as necessary
 
 exports.handler = async function(event, context) {
+    context.callbackWaitsForEmptyEventLoop = false;
+
+    // Set CORS headers
+    const headers = {
+        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    };
+
+    // Handle OPTIONS method for CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 204,
+            headers: headers
+        };
+    }
+
     // Connect to the database
     await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -20,6 +37,7 @@ exports.handler = async function(event, context) {
 
                 return {
                     statusCode: 200,
+                    headers: headers,
                     body: JSON.stringify(arrangements)
                 };
             } else {
@@ -31,6 +49,7 @@ exports.handler = async function(event, context) {
 
                 return {
                     statusCode: 200,
+                    headers: headers,
                     body: JSON.stringify(userArrangements)
                 };
             }
@@ -45,7 +64,11 @@ exports.handler = async function(event, context) {
                 // Disconnect from the database
                 await mongoose.disconnect();
 
-                return { statusCode: 404, body: JSON.stringify({ message: 'User not found' }) };
+                return { 
+                    statusCode: 404, 
+                    headers: headers,
+                    body: JSON.stringify({ message: 'User not found' }) 
+                };
             }
 
             const { sounds, isPrivate, originalArrangementId } = body;

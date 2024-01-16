@@ -21,8 +21,27 @@ const connectToDb = async () => {
 exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
+    // Set CORS headers
+    const headers = {
+        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    };
+
+    // Handle OPTIONS method for CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 204,
+            headers: headers
+        };
+    }
+
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        return { 
+            statusCode: 405, 
+            headers: headers,
+            body: 'Method Not Allowed' 
+        };
     }
 
     await connectToDb();
@@ -31,7 +50,11 @@ exports.handler = async function(event, context) {
         const body = JSON.parse(event.body);
         let user = await User.findOne({ email: body.email });
         if (user) {
-            return { statusCode: 400, body: JSON.stringify({ message: 'User already exists' }) };
+            return { 
+                statusCode: 400, 
+                headers: headers,
+                body: JSON.stringify({ message: 'User already exists' }) 
+            };
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -49,8 +72,16 @@ exports.handler = async function(event, context) {
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        return { statusCode: 201, body: JSON.stringify({ token }) };
+        return { 
+            statusCode: 201, 
+            headers: headers,
+            body: JSON.stringify({ token }) 
+        };
     } catch (error) {
-        return { statusCode: 500, body: JSON.stringify({ error: error.message })};
+        return { 
+            statusCode: 500, 
+            headers: headers,
+            body: JSON.stringify({ error: error.message })
+        };
     }
 };

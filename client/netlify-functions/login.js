@@ -25,25 +25,24 @@ exports.handler = async function(event, context) {
     // Set CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
 
+    // Handle OPTIONS method for CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 204,
+            headers: headers
+        };
+    }
+
     if (event.httpMethod !== 'POST') {
-        // Preflight request. Reply successfully:
-        if (event.httpMethod === 'OPTIONS') {
-            return {
-                statusCode: 200, // <-- Must be 200 otherwise pre-flight call fails
-                headers: headers,
-                body: 'This was a preflight call!'
-            };
-        } else {
-            return { 
-                statusCode: 405, 
-                headers: headers,
-                body: 'Method Not Allowed' 
-            };
-        }
+        return { 
+            statusCode: 405, 
+            headers: headers,
+            body: 'Method Not Allowed' 
+        };
     }
 
     await connectToDb();
