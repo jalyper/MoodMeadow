@@ -29,6 +29,7 @@ exports.handler = async function(event, context) {
             const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`, Expires: 3600};
             const url = s3.getSignedUrl('getObject', params);
 
+            console.log(url);
             return { statusCode: 200, body: url };
         }
     });
