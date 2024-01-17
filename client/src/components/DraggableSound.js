@@ -51,7 +51,7 @@ const DraggableSound = ({ sound, isDropped }) => {
 
       const playAudio = () => {
         console.log('playAudio function called');
-        fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
+        fetch(`/.netlify/functions/get-file/${filename}`, requestOptions)
           .then(response => {
             console.log('Response received:', response);
             if (!response.ok) {
