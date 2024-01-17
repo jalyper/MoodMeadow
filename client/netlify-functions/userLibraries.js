@@ -28,7 +28,11 @@ exports.handler = async function(event, context) {
     try {
         const pathParts = event.path.split('/');
         const arrangementId = pathParts[3];
-
+        console.log('full path parts' + pathParts);
+        console.log('path parts 0' + pathParts[0]);
+        console.log('path parts 1' + pathParts[1]);
+        console.log('path parts 2' + pathParts[2]);
+        console.log('path parts 3' + pathParts[3]);
         // Extract the token from the Authorization header
         const token = event.headers.authorization.split(' ')[1];
         // Verify the token and extract the userId
@@ -52,6 +56,7 @@ exports.handler = async function(event, context) {
             };
         } else if (event.httpMethod === 'POST' && pathParts[2] === 'userLibraries' && pathParts[3] === 'save') {
             // Handle POST /userLibraries/save
+
             // You'll need to parse the body of the request
             const body = JSON.parse(event.body);
             const { arrangement } = body;
