@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
-import { getAudioContext, resumeAudioContext } from '../audioContext';
+import { getAudioContext, } from '../audioContext';
 
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
