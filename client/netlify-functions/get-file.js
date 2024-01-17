@@ -88,7 +88,10 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 200,
             body: JSON.stringify({ url: url }),
-            headers: headers
+            headers: {
+                ...headers,
+                'Access-Control-Allow-Origin': '*', // Allow any origin
+            }
         };
     } catch (err) {
         console.log('An error occurred:', err);
