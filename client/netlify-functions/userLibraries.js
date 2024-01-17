@@ -34,9 +34,9 @@ exports.handler = async function(event, context) {
         // Verify the token and extract the userId
         const { userId } = jwt.verify(token, process.env.JWT_SECRET);
 
-        if (event.httpMethod === 'GET') {
+        if (event.httpMethod === 'GET' && pathParts[2]) {
             // Handle GET /:userId
-            const userLibrary = await UserLibrary.findOne({ userId: userId });
+            const userLibrary = await UserLibrary.findOne({ userId: pathParts[2] });
             if (!userLibrary) {
                 return { 
                     statusCode: 404, 
@@ -44,14 +44,14 @@ exports.handler = async function(event, context) {
                     body: JSON.stringify({ message: 'Library not found' }) 
                 };
             }
-
+        
             return { 
                 statusCode: 200, 
                 headers: headers,
                 body: JSON.stringify(userLibrary) 
             };
-        } else if (event.httpMethod === 'POST' && pathParts[2] === 'save') {
-            // Handle POST /save
+        } else if (event.httpMethod === 'POST' && pathParts[2] === 'userLibraries' && pathParts[3] === 'save') {
+            // Handle POST /userLibraries/save
             // You'll need to parse the body of the request
             const body = JSON.parse(event.body);
             const { arrangement } = body;
