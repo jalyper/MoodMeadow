@@ -55,27 +55,26 @@ exports.handler = async function(event, context) {
             });
         });
 
-        // If the token is valid, get the filename from the query string
-        const filename = event.queryStringParameters.filename.split('/').pop();
-        const params = {Bucket: 'moodmeadow-sound-files', Key: `sounds/${filename}`};
+        // Extract the file key from the path
+        const pathParts = event.path.split('/');
+        const fileKey = pathParts[3];
+        console.log('fileKey: ' + fileKey);
+        // Generate a pre-signed URL for the file
+        const url = s3.getSignedUrl('getObject', {
+            Bucket: process.env.REACT_APP_SOUND_BUCKET,
+            Key: fileKey,
+            Expires: 60 * 5 // URL will be valid for 5 minutes
+        });
 
-        // Fetch the file from S3
-        const file = await s3.getObject(params).promise();
-
-        // Return the file in the body of the response
         return {
             statusCode: 200,
-            body: Buffer.from(file.Body).toString('base64'),
-            isBase64Encoded: true,
-            headers: {
-                ...headers,
-                'Content-Type': 'audio/wav'
-            }
+            body: JSON.stringify({ url: url }),
+            headers: headers
         };
     } catch (err) {
         return { 
-            statusCode: 401, 
-            body: 'Invalid token',
+            statusCode: 500, 
+            body: 'An error occurred',
             headers: headers
         };
     }
