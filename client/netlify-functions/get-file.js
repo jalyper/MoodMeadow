@@ -91,6 +91,9 @@ exports.handler = async function(event, context) {
             headers: {
                 ...headers,
                 'Access-Control-Allow-Origin': '*', // Allow any origin
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Max-Age': '86400',  // Cache preflight response for 24 hours
             }
         };
     } catch (err) {
