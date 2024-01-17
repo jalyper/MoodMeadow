@@ -10,7 +10,7 @@ const DraggableSound = ({ sound, isDropped }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Create the audio element and source node once on mount
-    const newAudioElement = new Audio(sound.src);
+    const newAudioElement = new Audio();
     setAudioElement(newAudioElement);
 
     const newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
@@ -21,7 +21,7 @@ const DraggableSound = ({ sound, isDropped }) => {
       newTrackSrc.disconnect();
       newAudioElement.pause();
     };
-  }, [sound.src, audioCtx]);
+  }, [audioCtx]);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'sound',
@@ -50,10 +50,10 @@ const DraggableSound = ({ sound, isDropped }) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          return response.text();
+          return response.json();
         })
-        .then(url => {
-          audioElement.src = url;
+        .then(data => {
+          audioElement.src = data.url;
           audioElement.oncanplaythrough = () => {
             audioElement.play();
             setIsPlaying(true);
