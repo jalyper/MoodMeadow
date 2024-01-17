@@ -54,7 +54,7 @@ exports.handler = async function(event, context) {
                 headers: headers,
                 body: JSON.stringify(userLibrary) 
             };
-        } else if (event.httpMethod === 'POST' && pathParts[2] === 'userLibraries' && pathParts[3] === 'save') {
+        } else if (event.httpMethod === 'POST' && pathParts[3] === 'userLibraries' && pathParts[4] === 'save') {
             // Handle POST /userLibraries/save
 
             // You'll need to parse the body of the request
