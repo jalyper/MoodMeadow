@@ -3,7 +3,6 @@ import Arranger from '../components/Arranger';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import UserLibraryList from '../components/UserLibraryList';
 import LoginLogoutButton from '../components/LoginLogoutButton';
@@ -25,19 +24,27 @@ function MyLibrary() {
       try {
         const token = localStorage.getItem('token');
         if (token && userId) {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/userLibraries/${userId}`, {
+          const response = await fetch(`/.netlify/functions/userLibraries/${userId}`, {
+            method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`
             }
           });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
           // Here you need to make sure you're setting the state with the arrangements array
-          setUserLibraryArrangements(response.data.arrangements); // This should now be correct
+          setUserLibraryArrangements(data.arrangements); // This should now be correct
         }
       } catch (error) {
         console.error('Error fetching user library arrangements', error);
       }
     };
-  
+
     fetchUserLibraryArrangements();
   }, [userId]);
   
@@ -133,11 +140,16 @@ function MyLibrary() {
       const userId = localStorage.getItem('userId'); // Assuming the user's ID is stored in local storage
       console.log('userId: ', userId);
       if (token) {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/userLibraries/${userId}/arrangements/${arrangement._id}`, {
+        const response = await fetch(`/.netlify/functions/userLibraries/${userId}/arrangements/${arrangement._id}`, {
+          method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         // Remove the deleted arrangement from the userLibraryArrangements state
         setUserLibraryArrangements(userLibraryArrangements.filter((userLibraryArrangement) => userLibraryArrangement._id !== arrangement._id));
