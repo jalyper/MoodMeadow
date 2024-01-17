@@ -70,6 +70,7 @@ exports.handler = async function(event, context) {
 
         // Extract the file key from the path
         const pathParts = event.path.split('/');
+        console.log('Path parts:', pathParts);
         const fileKey = pathParts[3];
         console.log('File key:', fileKey);
 
