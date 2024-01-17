@@ -31,6 +31,20 @@ const DraggableSound = ({ sound, isDropped }) => {
   const playSound = () => {
     console.log('playSound function called');
   
+    // This will ensure that the audio context is resumed only when this function is called
+    // due to a user action (like clicking the "Play" button)
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
+        console.log('Audio context resumed');
+        fetchAndPlayAudio();
+      }).catch(e => console.error('Error resuming audio context:', e));
+    } else {
+      fetchAndPlayAudio();
+    }
+  };
+  
+  // This function fetches the audio file and plays it
+  const fetchAndPlayAudio = () => {
     const filename = sound.src.split('/').pop();
     console.log(`Filename: ${filename}`);
     const token = localStorage.getItem('token'); // replace with your actual JWT token
@@ -47,41 +61,27 @@ const DraggableSound = ({ sound, isDropped }) => {
   
     console.log('Request options:', requestOptions);
   
-    const playAudio = () => {
-      console.log('playAudio function called');
-      fetch(`/.netlify/functions/get-file/${filename}`, requestOptions)
-        .then(response => {
-          console.log('Response received:', response);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Response data:', data);
-          audioElement.src = data.url;
-          audioElement.oncanplaythrough = () => {
-            audioElement.play().then(() => {
-              setIsPlaying(true);
-            }).catch(e => {
-              console.error('Error playing sound:', e);
-              // Handle user interaction requirement for playing audio here, if necessary
-            });
-          };
-        })
-        .catch(e => console.error('Error playing sound:', e));
-    };
-  
-    // User gesture to resume the AudioContext and play the audio
-    if (audioCtx.state === 'suspended') {
-      console.log('Audio context is suspended, resuming...');
-      resumeAudioContext().then(() => {
-        console.log('Audio context resumed, now playing audio');
-        playAudio();
-      }).catch(e => console.error('Error resuming audio context:', e));
-    } else {
-      playAudio();
-    }
+    fetch(`/.netlify/functions/get-file/${filename}`, requestOptions)
+      .then(response => {
+        console.log('Response received:', response);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Response data:', data);
+        audioElement.src = data.url;
+        audioElement.oncanplaythrough = () => {
+          audioElement.play().then(() => {
+            setIsPlaying(true);
+          }).catch(e => {
+            console.error('Error playing sound:', e);
+            // Handle user interaction requirement for playing audio here, if necessary
+          });
+        };
+      })
+      .catch(e => console.error('Error playing sound:', e));
   };
   
   const stopSound = () => {
