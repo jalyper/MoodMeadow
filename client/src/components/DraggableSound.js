@@ -32,42 +32,51 @@ const DraggableSound = ({ sound, isDropped }) => {
   }));
 
   const playSound = () => {
-    resumeAudioContext();
-    const filename = sound.src.split('/').pop();
-    const token = localStorage.getItem('token'); // replace with your actual JWT token
+      console.log('playSound function called');
+      resumeAudioContext();
+      const filename = sound.src.split('/').pop();
+      console.log(`Filename: ${filename}`);
+      const token = localStorage.getItem('token'); // replace with your actual JWT token
+      console.log(`Token: ${token}`);
 
-    const headers = new Headers();
-    headers.append('Authorization', `Bearer ${token}`);
+      const headers = new Headers();
+      headers.append('Authorization', `Bearer ${token}`);
 
-    const requestOptions = {
-      method: 'GET',
-      headers: headers,
+      const requestOptions = {
+        method: 'GET',
+        headers: headers,
+      };
+
+      console.log('Request options:', requestOptions);
+
+      const playAudio = () => {
+        console.log('playAudio function called');
+        fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
+          .then(response => {
+            console.log('Response received:', response);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Response data:', data);
+            audioElement.src = data.url;
+            audioElement.oncanplaythrough = () => {
+              audioElement.play();
+              setIsPlaying(true);
+            };
+          })
+          .catch(e => console.error('Error playing sound:', e));
+      };
+
+      if (audioCtx.state === 'suspended') {
+        console.log('Audio context is suspended, resuming...');
+        audioCtx.resume().then(playAudio).catch(e => console.error('Error resuming audio context:', e));
+      } else {
+        playAudio();
+      }
     };
-
-    const playAudio = () => {
-      fetch(`/.netlify/functions/get-file?filename=${filename}`, requestOptions)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          audioElement.src = data.url;
-          audioElement.oncanplaythrough = () => {
-            audioElement.play();
-            setIsPlaying(true);
-          };
-        })
-        .catch(e => console.error('Error playing sound:', e));
-    };
-
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(playAudio).catch(e => console.error('Error resuming audio context:', e));
-    } else {
-      playAudio();
-    }
-  };
 
   const stopSound = () => {
     audioElement.pause();
