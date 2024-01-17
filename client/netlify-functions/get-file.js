@@ -65,7 +65,7 @@ exports.handler = async function(event, context) {
         // Return the file in the body of the response
         return {
             statusCode: 200,
-            body: file.Body.toString('base64'),
+            body: Buffer.from(file.Body).toString('base64'),
             isBase64Encoded: true,
             headers: {
                 ...headers,
