@@ -3,7 +3,6 @@ import Arranger from '../components/Arranger';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import CommunityArrangementList from '../components/CommunityArrangementList';
 import LoginLogoutButton from '../components/LoginLogoutButton';
@@ -23,13 +22,17 @@ function Discover() {
   useEffect(() => {
     const fetchPublicArrangements = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/userArrangements/public-arrangements`);
-        setCommunityArrangements(response.data);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/userArrangements/public-arrangements`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setCommunityArrangements(data);
       } catch (error) {
         console.error('Error fetching public arrangements', error);
       }
     };
-  
+
     fetchPublicArrangements();
   }, []);
 
@@ -176,10 +179,13 @@ function Discover() {
           console.log('Sending POST request to save arrangement');
 
           // Send a POST request to save the arrangement
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/userLibraries`, {arrangement: lastLoadedArrangement }, {
+          const response = await fetch(`/.netlify/functions/userLibraries/save`, {
+            method: 'POST',
             headers: {
+              'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
-            }
+            },
+            body: JSON.stringify({ arrangement: lastLoadedArrangement })
           });
 
           console.log(`Received response with status code: ${response.status}`);
