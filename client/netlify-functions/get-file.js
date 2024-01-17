@@ -69,7 +69,7 @@ exports.handler = async function(event, context) {
         });
 
         // Extract the file key from the path
-        const fileKey = event.path.split('/').pop();
+        const fileKey = 'sounds/' + event.path.split('/').pop();
         console.log('File key:', fileKey);
 
         // Validate the S3 credentials by listing the contents of the bucket
