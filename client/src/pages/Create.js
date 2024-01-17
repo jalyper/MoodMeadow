@@ -42,20 +42,20 @@ function Create() {
       resumeAudioContext().then(() => {
         console.log('Playback resumed successfully');
         Object.values(audioNodes).forEach(({ audioElement }) => {
-          if (audioElement) {
-            audioElement.play();
+          if (audioElement && audioElement.src) { // Check if the src is truthy before playing
+            audioElement.play().catch(e => console.error('Error playing sound:', e));
           }
         });
-      });
+      }).catch(e => console.error('Error resuming audio context:', e));
     } else {
       Object.values(audioNodes).forEach(({ audioElement }) => {
-        if (audioElement) {
-          audioElement.play();
+        if (audioElement && audioElement.src) { // Check if the src is truthy before playing
+          audioElement.play().catch(e => console.error('Error playing sound:', e));
         }
       });
     }
   };
-
+  
   const filteredSounds = sounds.filter(sound => 
     sound.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
