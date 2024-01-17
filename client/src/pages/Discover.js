@@ -176,7 +176,7 @@ function Discover() {
           console.log('Sending POST request to save arrangement');
 
           // Send a POST request to save the arrangement
-          const response = await axios.post(`${process.env.REACT_APP_API_URL}/userLibraries/save`, {arrangement: lastLoadedArrangement }, {
+          const response = await axios.post(`${process.env.REACT_APP_API_URL}/userLibraries`, {arrangement: lastLoadedArrangement }, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
