@@ -73,6 +73,10 @@ exports.handler = async function(event, context) {
         const fileKey = pathParts[3];
         console.log('File key:', fileKey);
 
+        // Validate the S3 credentials by listing the contents of the bucket
+        console.log('Validating S3 credentials...');
+        await s3.listObjectsV2({ Bucket: process.env.REACT_APP_SOUND_BUCKET }).promise();
+
         // Generate a pre-signed URL for the file
         console.log('Generating pre-signed URL...');
         const url = s3.getSignedUrl('getObject', {
