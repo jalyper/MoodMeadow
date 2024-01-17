@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 
 function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
@@ -18,50 +17,58 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
     setLoginErrorMessage(''); // Clear any existing error messages
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, {
-        usernameOrEmail,
-        password
+      const response = await fetch('/.netlify/functions/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          usernameOrEmail,
+          password
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      console.log(response.data);
-      login(response.data.token);
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      console.log(data);
+      login(data.token);
       onClose(); // Close modal after successful login
     } catch (error) {
-      // The server responded with a status code outside the range of 2xx
-      if (error.response) {
-        console.error('Login failed:', error.response.data);
-        // Set a specific error message based on the response if available
-        setLoginErrorMessage(error.response.data.message || 'Login failed. Please check your credentials and try again.');
-      } else if (error.request) {
-        // The request was made but no response was received
-        console.error('Login failed: No response', error.request);
-        setLoginErrorMessage('No response from the server. Please try again later.');
-      } else {
-        // An error occurred in setting up the request
-        console.error('Login failed:', error.message);
-        setLoginErrorMessage('An unexpected error occurred. Please try again.');
-      }
+      console.error('Login failed:', error.message);
+      setLoginErrorMessage('Login failed. Please check your credentials and try again.');
     }
   };
 
-  
-
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      // API call to your server's register endpoint
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {
-        username,
-        email,
-        password
+      const response = await fetch('/.netlify/functions/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          username,
+          email,
+          password
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      // Handle the response, e.g., log the user in or confirm account creation
-      console.log(response.data);
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const data = await response.json();
+      console.log(data);
       console.log('Successfully registered.');
       onClose(); // Close modal after successful registration
     } catch (error) {
-      // Handle errors, e.g., show error message to the user
-      setRegistrationErrorMessage('Registration failed.', error.response.data);
-      console.error('Registration failed:', error.response.data);
+      console.error('Registration failed:', error.message);
+      setRegistrationErrorMessage('Registration failed. Please try again.');
     }
   };
 
