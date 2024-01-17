@@ -41,16 +41,16 @@ function Create() {
     if (audioCtx.state === 'suspended') {
       resumeAudioContext().then(() => {
         console.log('Playback resumed successfully');
-        Object.values(audioNodes).forEach(({ trackSrc }) => {
-          if (trackSrc && trackSrc.mediaElement) {
-            trackSrc.mediaElement.play();
+        Object.values(audioNodes).forEach(({ audioElement }) => {
+          if (audioElement) {
+            audioElement.play();
           }
         });
       });
     } else {
-      Object.values(audioNodes).forEach(({ trackSrc }) => {
-        if (trackSrc && trackSrc.mediaElement) {
-          trackSrc.mediaElement.play();
+      Object.values(audioNodes).forEach(({ audioElement }) => {
+        if (audioElement) {
+          audioElement.play();
         }
       });
     }
