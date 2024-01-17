@@ -45,6 +45,7 @@ const DraggableSound = ({ sound, isDropped }) => {
       const requestOptions = {
         method: 'GET',
         headers: headers,
+        mode: 'cors',
       };
 
       console.log('Request options:', requestOptions);
