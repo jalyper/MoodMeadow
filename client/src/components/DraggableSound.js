@@ -72,7 +72,7 @@ const DraggableSound = ({ sound, isDropped }) => {
 
       if (audioCtx.state === 'suspended') {
         console.log('Audio context is suspended, resuming...');
-        audioCtx.resume().then(playAudio).catch(e => console.error('Error resuming audio context:', e));
+        resumeAudioContext().then(playAudio).catch(e => console.error('Error resuming audio context:', e));
       } else {
         playAudio();
       }
