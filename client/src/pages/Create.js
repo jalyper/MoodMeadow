@@ -4,7 +4,6 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableSound from '../components/DraggableSound';
 import Arranger from '../components/Arranger';
-import axios from 'axios';
 import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
@@ -62,6 +61,7 @@ function Create() {
   );
 
   const handleDrop = (item, slotIndex) => {
+    const audioCtx = getAudioContext();
     const newDroppedSounds = [...droppedSounds];
     newDroppedSounds[slotIndex] = item.name;
     setDroppedSounds(newDroppedSounds);
@@ -109,12 +109,12 @@ function Create() {
 
   const saveArrangement = async () => {
     const token = localStorage.getItem('token');
-  
+
     if (!droppedSounds.length || droppedSounds.every(sound => sound == null)) {
       setSaveMessage('Cannot save an empty arrangement. Please add some sounds.');
       return;
     }
-  
+
     // Map sound URLs to sound objects
     const soundObjects = droppedSounds
       .filter(soundName => soundName)
@@ -124,50 +124,51 @@ function Create() {
       })
       .filter(soundObject => soundObject);
     console.log(soundObjects);
+
     // Define helper function to post data to an endpoint
     const postArrangement = async (endpoint, data) => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}${endpoint}`, data, {
+        const response = await fetch(`/.netlify/functions${endpoint}`, {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify(data)
         });
-  
+
         if (response.status === 201) {
-          console.log(`Saved to ${endpoint}`, response.data);
+          console.log(`Saved to ${endpoint}`, await response.json());
           // Update UI feedback based on which endpoint was successful
         }
       } catch (error) {
-        console.error(`Error saving to ${endpoint}`, error.response?.data || error.message);
+        console.error(`Error saving to ${endpoint}`, error.message);
         // Update UI feedback based on which endpoint had an error
       }
     };
-  
 
     // Prepare the data for userArrangements, including the isPrivate property
     const userArrangementsData = {
       sounds: soundObjects,
       isPrivate: isPrivate, // Only for userArrangements
     };
-  
-    
+
     // Prepare the data for userLibraries, without the isPrivate property
     const userLibrariesData = {
       arrangement: {
         sounds: soundObjects,
       }
     };
-  
+
     // Save to userArrangements
     await postArrangement('/userArrangements/save', userArrangementsData);
-  
+
     // Save to userLibraries
     await postArrangement('/userLibraries/save', userLibrariesData);
-  
+
     // Set final save message for the user
     setSaveMessage('Arrangement saved!');
-  };  
+  };
   
   return (
     <DndProvider backend={HTML5Backend}>
