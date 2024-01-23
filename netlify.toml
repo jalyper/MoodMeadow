@@ -8,3 +8,11 @@
     from="/*"
     to="/index.html"
     status=200
+
+[[headers]]
+    # Define the path for your functions
+    for = "/.netlify/functions/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "https://moodmeadow.com"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
