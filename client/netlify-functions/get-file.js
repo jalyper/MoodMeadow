@@ -15,7 +15,7 @@ exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
     const headers = {
-        "Access-Control-Allow-Origin" : "*", // Allow any origin
+        "Access-Control-Allow-Origin" : "https://moodmeadow.com", // Allow any origin
         "Access-Control-Allow-Methods": "GET, OPTIONS", // Allow GET and OPTIONS methods
         "Access-Control-Allow-Headers": "Content-Type, Authorization" // Allow these headers
     };
