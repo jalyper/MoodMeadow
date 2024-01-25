@@ -128,7 +128,7 @@ function Create() {
     // Define helper function to post data to an endpoint
     const postArrangement = async (endpoint, data) => {
       try {
-        const response = await fetch(`/.netlify/functions${endpoint}`, {
+        const response = await fetch(`/.netlify/functions/userArrangements`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -159,15 +159,29 @@ function Create() {
         sounds: soundObjects,
       }
     };
+    try {
+      // Save to userArrangements
+      const userArrangementsResponse = await postArrangement('/.netlify/functions/userArrangements', userArrangementsData);
 
-    // Save to userArrangements
-    await postArrangement('/userArrangements/save', userArrangementsData);
+      // Check if the request was successful
+      if (userArrangementsResponse.status !== 200) {
+        throw new Error('Failed to save to userArrangements');
+      }
 
-    // Save to userLibraries
-    await postArrangement('/userLibraries/save', userLibrariesData);
+      // Save to userLibraries
+      const userLibrariesResponse = await postArrangement('/.netlify/functions/userLibraries', userLibrariesData);
 
-    // Set final save message for the user
-    setSaveMessage('Arrangement saved!');
+      // Check if the request was successful
+      if (userLibrariesResponse.status !== 200) {
+        throw new Error('Failed to save to userLibraries');
+      }
+
+      // Set final save message for the user
+      setSaveMessage('Arrangement saved!');
+    } catch (error) {
+      console.error(error); // Log the error for debugging purposes
+      setSaveMessage('Saving Failed!');
+    }
   };
   
   return (

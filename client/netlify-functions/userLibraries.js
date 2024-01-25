@@ -9,7 +9,7 @@ exports.handler = async function(event, context) {
 
     // Set CORS headers
     const headers = {
-        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Origin': 'https://moodmeadow.com', 
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
     };
@@ -54,13 +54,14 @@ exports.handler = async function(event, context) {
                 headers: headers,
                 body: JSON.stringify(userLibrary) 
             };
-        } else if (event.httpMethod === 'POST' && pathParts[3] === 'userLibraries' && pathParts[4] === 'save') {
+        } else if (event.httpMethod === 'POST') {
             // Handle POST /userLibraries/save
 
-            // You'll need to parse the body of the request
+            // parse the body of the request
             const body = JSON.parse(event.body);
             const { arrangement } = body;
 
+            // validate arrangement object
             if (typeof arrangement !== 'object' || 
                     !Array.isArray(arrangement.sounds) || 
                     !arrangement.sounds.every(sound => sound && sound.name && sound.src)) {
@@ -76,6 +77,7 @@ exports.handler = async function(event, context) {
                 });
             }
 
+            // Check if the arrangement already exists in the library
             const doesArrangementExist = userLibrary.arrangements.some(existingArrangement => {
                 return JSON.stringify(existingArrangement.sounds) === JSON.stringify(arrangement.sounds);
             });
@@ -89,6 +91,7 @@ exports.handler = async function(event, context) {
             await userLibrary.save();
 
             return { statusCode: 201, body: JSON.stringify(userLibrary) };
+
         } else if (event.httpMethod === 'DELETE' && userId && pathParts[2] === 'arrangements' && arrangementId) {
             // Handle DELETE /:userId/arrangements/:arrangementId
             const userLibrary = await UserLibrary.findOne({ userId: userId });

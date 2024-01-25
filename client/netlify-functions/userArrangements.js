@@ -2,13 +2,19 @@
 const mongoose = require('mongoose');
 const UserArrangement = require('./models/UserArrangement'); // Adjust the path as necessary
 const User = require('./models/User'); // Adjust the path as necessary
+let connection = null;
 
 exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
+    // Connect to the database
+    if (connection == null) {
+        connection = await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    }
+
     // Set CORS headers
     const headers = {
-        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Origin': 'https://moodmeadow.com', 
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
     };
@@ -20,9 +26,6 @@ exports.handler = async function(event, context) {
             headers: headers
         };
     }
-
-    // Connect to the database
-    await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         if (event.httpMethod === 'GET') {
@@ -53,7 +56,7 @@ exports.handler = async function(event, context) {
                     body: JSON.stringify(userArrangements)
                 };
             }
-        } else if (event.httpMethod === 'POST' && event.path.endsWith('save')) {
+        } else if (event.httpMethod === 'POST') {
             // Handle POST /save
             // You'll need to parse the body of the request
             const body = JSON.parse(event.body);
