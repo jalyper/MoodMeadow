@@ -154,6 +154,9 @@ function Create() {
         response = { status: 500 };
       }
 
+      // Ensure response is an object with a status property
+      response = response || { status: 500 };
+
       // Return the response object
       return response;
     };
