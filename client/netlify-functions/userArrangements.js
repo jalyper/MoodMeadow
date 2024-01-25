@@ -9,7 +9,16 @@ exports.handler = async function(event, context) {
 
     // Connect to the database
     if (connection == null) {
-        connection = await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        try {
+            connection = await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        } catch (error) {
+            console.error('Database connection error:', error);
+            return {
+                statusCode: 500,
+                headers: headers,
+                body: JSON.stringify({ message: 'Internal Server Error' })
+            };
+        }
     }
 
     // Set CORS headers

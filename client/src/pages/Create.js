@@ -176,7 +176,7 @@ function Create() {
 
       // Check if the request was successful
       if (userArrangementsResponse.status !== 200) {
-        throw new Error('Failed to save to userArrangements');
+        throw new Error(`Failed to save to userArrangements. Status: ${userArrangementsResponse.status}, Response: ${JSON.stringify(userArrangementsResponse.data)}`);
       }
 
       // Save to userLibraries
@@ -184,13 +184,13 @@ function Create() {
 
       // Check if the request was successful
       if (userLibrariesResponse.status !== 200) {
-        throw new Error('Failed to save to userLibraries');
+        throw new Error(`Failed to save to userLibraries. Status: ${userLibrariesResponse.status}, Response: ${JSON.stringify(userLibrariesResponse.data)}`);
       }
 
       // Set final save message for the user
       setSaveMessage('Arrangement saved!');
     } catch (error) {
-      console.error(error); // Log the error for debugging purposes
+      console.error('Error saving arrangement:', error); // Log the error for debugging purposes
       setSaveMessage('Saving Failed!');
     }
   };

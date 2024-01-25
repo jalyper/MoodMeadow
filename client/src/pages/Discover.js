@@ -179,7 +179,7 @@ function Discover() {
           console.log('Sending POST request to save arrangement');
 
           // Send a POST request to save the arrangement
-          const response = await fetch(`/.netlify/functions/userLibraries/save`, {
+          const response = await fetch(`/.netlify/functions/userLibraries`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
