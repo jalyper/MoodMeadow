@@ -125,10 +125,9 @@ function Create() {
       .filter(soundObject => soundObject);
     console.log(soundObjects);
 
-    // Define helper function to post data to an endpoint
     const postArrangement = async (endpoint, data) => {
       try {
-        const response = await fetch(`/.netlify/functions/userArrangements`, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -141,9 +140,15 @@ function Create() {
           console.log(`Saved to ${endpoint}`, await response.json());
           // Update UI feedback based on which endpoint was successful
         }
+
+        // Return the response object
+        return response;
       } catch (error) {
         console.error(`Error saving to ${endpoint}`, error.message);
         // Update UI feedback based on which endpoint had an error
+
+        // Return an object with a status property
+        return { status: 500 };
       }
     };
 
