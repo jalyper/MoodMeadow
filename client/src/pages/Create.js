@@ -125,10 +125,10 @@ function Create() {
       .filter(soundObject => soundObject);
     console.log(soundObjects);
     
-    let response;
     const postArrangement = async (endpoint, data) => {
+      let responseBody;
       try {
-        response = await fetch(endpoint, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -137,32 +137,24 @@ function Create() {
           body: JSON.stringify(data)
         });
 
-        // Check if the fetch call returned a response
         if (!response) {
           throw new Error('Fetch call did not return a response');
         }
 
         if (response.status === 201) {
-          console.log(`Saved to ${endpoint}`, await response.json());
-          // Update UI feedback based on which endpoint was successful
+          responseBody = await response.json();
+          console.log(`Saved to ${endpoint}`, responseBody);
         }
       } catch (error) {
         console.error(`Error saving to ${endpoint}`, error.message);
-        // Update UI feedback based on which endpoint had an error
-
-        // Return an object with a status property
-        response = { status: 500 };
+        return { status: 500 };
       }
 
-      // Ensure response is an object with a status property
-      response = response || { status: 500 };
-
-      // Return the response object
-      return response;
+      return { status: response.status, body: responseBody };
     };
 
     // Prepare the data for userArrangements, including the isPrivate property
-    const responseBody = response.json();
+    const responseBody = await response.json();
     const userArrangementsData = {
       userId: responseBody.userId,
       sounds: soundObjects,
