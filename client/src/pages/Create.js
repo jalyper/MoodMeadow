@@ -26,7 +26,15 @@ function Create() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if(token) {
-      ValidateJWT(token);
+      console.log('Validating JWT...');
+
+      if(userId){
+        setUser({ id: userId }); // Set the user state
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+        console.log('User ID:', userId);
+      }
     }
   }, []);
 
@@ -38,19 +46,6 @@ function Create() {
       }
     });
   }, [isLooping, audioNodes]);
-  
-  // Validate the JWT
-  const ValidateJWT = async (token) => {
-    console.log('Validating JWT...');
-
-    if(userId){
-      setUser({ id: userId }); // Set the user state
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-      console.log('User ID:', userId);
-    }
-  };
 
   const playAllSounds = () => {
     const audioCtx = getAudioContext();
