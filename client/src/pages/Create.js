@@ -159,7 +159,7 @@ function Create() {
         return { status: 500 };
       }
 
-      return { status: responseBody.status, body: responseBody };
+      return { status: response.status, body: responseBody };
     };
 
     const userArrangementsData = {
