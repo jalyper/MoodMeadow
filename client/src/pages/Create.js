@@ -17,7 +17,7 @@ function Create() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [user, setUser] = useState({});
-  const [userId] = useAuth();
+  const {userId} = useAuth();
   const { sounds } = useContext(SoundsContext);
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
