@@ -8,7 +8,7 @@ import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
-import { decode as jwt_decode } from 'jwt-decode';
+import jwt from 'jsonwebtoken';
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,14 +24,8 @@ function Create() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    ValidateJWT(token);
-    if (token) {
-      const decodedToken = jwt_decode(token);
-      const userId = decodedToken.sub; // 'sub' usually contains the user ID
-      setUser({ id: userId }); // Set the user state
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
+    if(token) {
+      ValidateJWT(token);
     }
   }, []);
 
@@ -60,9 +54,14 @@ function Create() {
       });
     });
 
-    userId = decoded.userId; // Assuming 'name' is the property that holds the user's name
-    console.log('User ID:', userId);
-  }
+    userId = decoded.sub; // Assuming 'name' is the property that holds the user's name
+    if(userId){
+      setUser({ id: userId }); // Set the user state
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+      console.log('User ID:', userId);
+    }
   
 
   const playAllSounds = () => {
