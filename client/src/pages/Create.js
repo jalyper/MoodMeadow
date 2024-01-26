@@ -162,7 +162,9 @@ function Create() {
     };
 
     // Prepare the data for userArrangements, including the isPrivate property
+    const responseBody = await response.json();
     const userArrangementsData = {
+      userId: responseBody.userId,
       sounds: soundObjects,
       isPrivate: isPrivate, // Only for userArrangements
     };
