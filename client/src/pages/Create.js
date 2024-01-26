@@ -134,10 +134,11 @@ function Create() {
       })
       .filter(soundObject => soundObject);
 
+    let response;
     const postArrangement = async (endpoint, data) => {
       let responseBody;
       try {
-        const response = await fetch(endpoint, {
+        response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -150,9 +151,13 @@ function Create() {
           throw new Error('Fetch call did not return a response');
         }
 
+        responseBody = await response.json();
+        console.log(`Response from ${endpoint}:`, responseBody);
+
         if (response.status === 201) {
-          responseBody = await response.json();
           console.log(`Saved to ${endpoint}`, responseBody);
+        } else {
+          console.log(`Received status ${response.status} from ${endpoint}`, responseBody);
         }
       } catch (error) {
         console.error(`Error saving to ${endpoint}`, error.message);
