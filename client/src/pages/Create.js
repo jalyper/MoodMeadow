@@ -115,7 +115,6 @@ function Create() {
       return;
     }
 
-    // Map sound URLs to sound objects
     const soundObjects = droppedSounds
       .filter(soundName => soundName)
       .map(soundName => {
@@ -123,8 +122,7 @@ function Create() {
         return fullSoundObject || null;
       })
       .filter(soundObject => soundObject);
-    console.log(soundObjects);
-    
+
     const postArrangement = async (endpoint, data) => {
       let responseBody;
       try {
@@ -153,41 +151,34 @@ function Create() {
       return { status: response.status, body: responseBody };
     };
 
-    // Prepare the data for userArrangements, including the isPrivate property
-    const responseBody = await response.json();
     const userArrangementsData = {
-      userId: responseBody.userId,
+      userId: user.id, // Assuming 'user' is available in this scope
       sounds: soundObjects,
-      isPrivate: isPrivate, // Only for userArrangements
+      isPrivate: isPrivate, // Assuming all arrangements are public. Change this as needed.
     };
 
-    // Prepare the data for userLibraries, without the isPrivate property
     const userLibrariesData = {
       arrangement: {
         sounds: soundObjects,
       }
     };
+
     try {
-      // Save to userArrangements
       const userArrangementsResponse = await postArrangement('/.netlify/functions/userArrangements', userArrangementsData);
 
-      // Check if the request was successful
       if (userArrangementsResponse.status !== 200) {
-        throw new Error(`Failed to save to userArrangements. Status: ${userArrangementsResponse.status}, Response: ${JSON.stringify(userArrangementsResponse.data)}`);
+        throw new Error(`Failed to save to userArrangements. Status: ${userArrangementsResponse.status}, Response: ${JSON.stringify(userArrangementsResponse.body)}`);
       }
 
-      // Save to userLibraries
       const userLibrariesResponse = await postArrangement('/.netlify/functions/userLibraries', userLibrariesData);
 
-      // Check if the request was successful
       if (userLibrariesResponse.status !== 200) {
-        throw new Error(`Failed to save to userLibraries. Status: ${userLibrariesResponse.status}, Response: ${JSON.stringify(userLibrariesResponse.data)}`);
+        throw new Error(`Failed to save to userLibraries. Status: ${userLibrariesResponse.status}, Response: ${JSON.stringify(userLibrariesResponse.body)}`);
       }
 
-      // Set final save message for the user
       setSaveMessage('Arrangement saved!');
     } catch (error) {
-      console.error('Error saving arrangement:', error); // Log the error for debugging purposes
+      console.error('Error saving arrangement:', error);
       setSaveMessage('Saving Failed!');
     }
   };
