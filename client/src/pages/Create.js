@@ -8,6 +8,7 @@ import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
+import jwt_decode from 'jwt-decode';
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,10 +22,16 @@ function Create() {
   const [isLooping, setIsLooping] = useState(false);
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
 
-
-  // Step 1: Set isLoggedIn based on token in localStorage
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem('token'));
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwt_decode(token);
+      const userId = decodedToken.sub; // 'sub' usually contains the user ID
+      setUser({ id: userId }); // Set the user state
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
   }, []);
 
   useEffect(() => {
