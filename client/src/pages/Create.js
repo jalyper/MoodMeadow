@@ -62,7 +62,7 @@ function Create() {
       setIsLoggedIn(false);
       console.log('User ID:', userId);
     }
-  
+  };
 
   const playAllSounds = () => {
     const audioCtx = getAudioContext();
