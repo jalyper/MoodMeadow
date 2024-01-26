@@ -124,9 +124,9 @@ function Create() {
       })
       .filter(soundObject => soundObject);
     console.log(soundObjects);
-
+    
+    let response;
     const postArrangement = async (endpoint, data) => {
-      let response;
       try {
         response = await fetch(endpoint, {
           method: 'POST',
