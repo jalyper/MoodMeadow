@@ -16,7 +16,7 @@ function Create() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
-  const [user] = useState(null);
+  const [userId] = useState(null);
   const { sounds } = useContext(SoundsContext);
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
@@ -24,6 +24,7 @@ function Create() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    ValidateJWT(token);
     if (token) {
       const decodedToken = jwt_decode(token);
       const userId = decodedToken.sub; // 'sub' usually contains the user ID
@@ -42,6 +43,27 @@ function Create() {
       }
     });
   }, [isLooping, audioNodes]);
+  
+  // Validate the JWT
+  const ValidateJWT = async (token) => {
+    console.log('Validating JWT...');
+    const decoded = await new Promise((resolve, reject) => {
+      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+          console.log('Error validating JWT:', err);
+          reject(err);
+        }
+        else {
+          console.log('JWT validated:', decoded);
+          resolve(decoded);
+        }
+      });
+    });
+
+    userId = decoded.userId; // Assuming 'name' is the property that holds the user's name
+    console.log('User ID:', userId);
+  }
+  
 
   const playAllSounds = () => {
     const audioCtx = getAudioContext();
@@ -159,7 +181,7 @@ function Create() {
     };
 
     const userArrangementsData = {
-      userId: user.id, // Assuming 'user' is available in this scope
+      userId: userId, // Assuming 'user' is available in this scope
       sounds: soundObjects,
       isPrivate: isPrivate, // Assuming all arrangements are public. Change this as needed.
     };
