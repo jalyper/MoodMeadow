@@ -10,7 +10,14 @@ exports.handler = async function(event, context) {
     // Connect to the database
     if (connection == null) {
         try {
-            connection = await mongoose.connect(process.env.MONGODB_URI);
+            connection = await mongoose.connect(process.env.MONGODB_URI, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            });
+            mongoose.connection.on('error', err => {
+                console.error('MongoDB connection error:', err);
+                connection = null;
+            });
         } catch (error) {
             console.error('Database connection error:', error);
             return {
@@ -44,9 +51,6 @@ exports.handler = async function(event, context) {
                     .populate('userId', 'username') 
                     .sort({ date: -1 });
 
-                // Disconnect from the database
-                await mongoose.disconnect();
-
                 return {
                     statusCode: 200,
                     headers: headers,
@@ -55,9 +59,6 @@ exports.handler = async function(event, context) {
             } else {
                 // Handle GET /
                 const userArrangements = await UserArrangement.find(!null);
-
-                // Disconnect from the database
-                await mongoose.disconnect();
 
                 return {
                     statusCode: 200,
@@ -80,9 +81,6 @@ exports.handler = async function(event, context) {
 
             const user = await User.findById(userId);
             if (!user) {
-                // Disconnect from the database
-                await mongoose.disconnect();
-
                 return { 
                     statusCode: 404, 
                     headers: headers,
@@ -93,9 +91,6 @@ exports.handler = async function(event, context) {
             const { sounds, isPrivate, originalArrangementId } = body;
 
             if (!sounds.every(sound => sound && sound.name && sound.src)) {
-                // Disconnect from the database
-                await mongoose.disconnect();
-
                 return {
                     statusCode: 400,
                     headers: headers,
@@ -130,9 +125,6 @@ exports.handler = async function(event, context) {
 
             // Save the UserArrangement
             await userArrangement.save();
-
-            // Disconnect from the database
-            await mongoose.disconnect();
 
             return {
                 statusCode: 200,
