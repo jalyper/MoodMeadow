@@ -8,7 +8,7 @@ import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
-import jwt from 'jsonwebtoken';
+import { useAuth } from '../contexts/AuthContext';
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,7 +16,7 @@ function Create() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
-  const [userId] = useState(null);
+  const [userId] = useAuth();
   const { sounds } = useContext(SoundsContext);
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
@@ -41,20 +41,7 @@ function Create() {
   // Validate the JWT
   const ValidateJWT = async (token) => {
     console.log('Validating JWT...');
-    const decoded = await new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-          console.log('Error validating JWT:', err);
-          reject(err);
-        }
-        else {
-          console.log('JWT validated:', decoded);
-          resolve(decoded);
-        }
-      });
-    });
 
-    userId = decoded.sub; // Assuming 'name' is the property that holds the user's name
     if(userId){
       setUser({ id: userId }); // Set the user state
       setIsLoggedIn(true);
