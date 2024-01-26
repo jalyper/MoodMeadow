@@ -8,7 +8,7 @@ import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
-import jwt_decode from 'jwt-decode';
+import { decode as jwt_decode } from 'jwt-decode';
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
