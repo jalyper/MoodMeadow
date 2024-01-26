@@ -137,9 +137,9 @@ function Create() {
           body: JSON.stringify(data)
         });
 
-        // Check if the request was successful
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
+        // Check if the fetch call returned a response
+        if (!response) {
+          throw new Error('Fetch call did not return a response');
         }
 
         if (response.status === 201) {

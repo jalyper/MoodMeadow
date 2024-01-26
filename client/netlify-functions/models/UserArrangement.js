@@ -11,7 +11,8 @@ const UserArrangementSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }, // Sets the default date to the current date/time
     isPrivate: { type: Boolean, require: true, default: false }, // Sets the default to not private
     totalSaves: { type: Number, require: true, default: 0 },
-    originalArrangementId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserArrangement' }
+    originalArrangementId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserArrangement' },
+    savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // field to track which users have saved this arrangement
 });
 
 module.exports = mongoose.models.UserArrangement || mongoose.model('UserArrangement', UserArrangementSchema, 'userArrangements');

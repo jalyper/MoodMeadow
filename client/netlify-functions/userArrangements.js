@@ -89,43 +89,56 @@ exports.handler = async function(event, context) {
                 // Disconnect from the database
                 await mongoose.disconnect();
 
-                return { statusCode: 400, body: JSON.stringify({ message: 'Each sound must have a name and a source.' }) };
+                return {
+                    statusCode: 400,
+                    headers: headers,
+                    body: JSON.stringify({ message: 'Invalid sound data in request body' })
+                };
             }
 
-            let totalSavesIncremented = false;
             if (originalArrangementId) {
                 // Find and update the original arrangement
                 const originalArrangement = await UserArrangement.findById(originalArrangementId);
                 if (originalArrangement) {
-                    originalArrangement.totalSaves += 1;
-                    await originalArrangement.save();
-                    totalSavesIncremented = true;
+                    // Check if the user has already saved this arrangement
+                    if (!originalArrangement.savedBy.includes(userId)) {
+                        // Increment totalSaves and add the user's ID to savedBy
+                        originalArrangement.totalSaves += 1;
+                        originalArrangement.savedBy.push(userId);
+                        await originalArrangement.save();
+                        totalSavesIncremented = true;
+                    }
                 }
             }
 
-            // Create a new user arrangement
-            const newArrangement = new UserArrangement({
-                userId,
-                username: user.username,
-                sounds,
-                isPrivate,
-                originalArrangementId: totalSavesIncremented ? originalArrangementId : undefined
+            // Create a new UserArrangement
+            const userArrangement = new UserArrangement({
+                userId: userId,
+                sounds: sounds,
+                username: user.username, // Use the username from the user document
+                isPrivate: isPrivate,
+                originalArrangementId: originalArrangementId,
+                // date and totalSaves will use their default values
             });
 
-            await newArrangement.save();
-            return { statusCode: 201, body: JSON.stringify(newArrangement) };
-        } else {
-            // Handle unsupported HTTP methods
+            // Save the UserArrangement
+            await userArrangement.save();
+
+            // Disconnect from the database
+            await mongoose.disconnect();
+
             return {
-                statusCode: 405,
-                body: 'Method Not Allowed',
-                headers: { 'Allow': 'GET, POST' },
+                statusCode: 200,
+                headers: headers,
+                body: JSON.stringify(userArrangement)
             };
         }
     } catch (error) {
-        // Disconnect from the database in case of error
-        await mongoose.disconnect();
-
-        return { statusCode: 500, body: error.toString() };
+        console.error('Error handling request:', error);
+        return {
+            statusCode: 500,
+            headers: headers,
+            body: JSON.stringify({ message: 'Internal Server Error' })
+        };
     }
-};
+}
