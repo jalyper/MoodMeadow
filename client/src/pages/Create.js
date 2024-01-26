@@ -36,7 +36,7 @@ function Create() {
         console.log('User ID:', userId);
       }
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
