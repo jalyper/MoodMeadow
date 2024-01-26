@@ -148,7 +148,7 @@ function Create() {
         return { status: 500 };
       }
 
-      return { status: response.status, body: responseBody };
+      return { status: responseBody.status, body: responseBody };
     };
 
     const userArrangementsData = {
