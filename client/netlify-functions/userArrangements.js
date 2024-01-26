@@ -10,7 +10,7 @@ exports.handler = async function(event, context) {
     // Connect to the database
     if (connection == null) {
         try {
-            connection = await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+            connection = await mongoose.connect(process.env.MONGODB_URI);
         } catch (error) {
             console.error('Database connection error:', error);
             return {
@@ -69,7 +69,14 @@ exports.handler = async function(event, context) {
             // Handle POST /save
             // You'll need to parse the body of the request
             const body = JSON.parse(event.body);
-            const userId = body.user.id; 
+            if (!body.userId) {
+                return {
+                    statusCode: 400,
+                    headers: headers,
+                    body: JSON.stringify({ message: 'Invalid request body: user is missing' })
+                };
+            }
+            const userId = body.userId; 
 
             const user = await User.findById(userId);
             if (!user) {
