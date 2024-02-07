@@ -31,6 +31,7 @@ function Create() {
       if(userId){
         setUser({ id: userId }); // Set the user state
         setIsLoggedIn(true);
+        console.log('Found User ID: ', userId);
       } else {
         setIsLoggedIn(false);
         console.log('User ID:', userId);

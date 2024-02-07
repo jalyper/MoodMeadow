@@ -15,9 +15,11 @@ exports.handler = async function(event, context) {
     context.callbackWaitsForEmptyEventLoop = false;
 
     const headers = {
-        "Access-Control-Allow-Origin" : "https://moodmeadow.com", // Set to the origin of the request
-        "Access-Control-Allow-Methods": "GET, OPTIONS", // Allow GET and OPTIONS methods
-        "Access-Control-Allow-Headers": "Content-Type, Authorization" // Allow these headers
+        "Access-Control-Allow-Origin" : "*", // You can use '*' for development/testing
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400", // 24 hours
+        "Content-Type": "application/json" // Specify that you're sending back JSON
     };
 
     // Handle OPTIONS method for CORS preflight
@@ -33,7 +35,7 @@ exports.handler = async function(event, context) {
         console.log('Non-GET method received:', event.httpMethod);
         return { 
             statusCode: 405, 
-            body: 'Method Not Allowed',
+            body: JSON.stringify({ message: 'Method Not Allowed' }),
             headers: headers
         };
     }
@@ -43,7 +45,7 @@ exports.handler = async function(event, context) {
         console.log('No Authorization header');
         return { 
             statusCode: 401, 
-            body: 'No Authorization header',
+            body: JSON.stringify({ message: 'No Authorization header' }),
             headers: headers
         };
     }
@@ -55,26 +57,12 @@ exports.handler = async function(event, context) {
     try {
         // Validate the JWT
         console.log('Validating JWT...');
-        const decoded = await new Promise((resolve, reject) => {
-            jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-                if (err) {
-                    console.log('Error validating JWT:', err);
-                    reject(err);
-                }
-                else {
-                    console.log('JWT validated:', decoded);
-                    resolve(decoded);
-                }
-            });
-        });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('JWT validated:', decoded);
 
         // Extract the file key from the path
-        const fileKey = 'sounds/' + event.path.split('/').pop();
+        const fileKey = event.path.split('/').pop();
         console.log('File key:', fileKey);
-
-        // Validate the S3 credentials by listing the contents of the bucket
-        console.log('Validating S3 credentials...');
-        await s3.listObjectsV2({ Bucket: process.env.REACT_APP_SOUND_BUCKET }).promise();
 
         // Generate a pre-signed URL for the file
         console.log('Generating pre-signed URL...');
@@ -88,20 +76,13 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 200,
             body: JSON.stringify({ url: url }),
-            headers: {
-                ...headers,
-                'Access-Control-Allow-Origin': headers['Access-Control-Allow-Origin'] || 'https://moodmeadow.com',
-                'Access-Control-Allow-Methods': headers['Access-Control-Allow-Methods'] || 'GET',
-                'Access-Control-Allow-Headers': headers['Access-Control-Allow-Headers'] || 'Content-Type',
-                'Access-Control-Max-Age': headers['Access-Control-Max-Age'] || '86400',
-                'Content-Type': headers['Content-Type'] || 'audio/wav'
-            }
+            headers: headers
         };
     } catch (err) {
-        console.log('An error occurred:', err);
+        console.error('An error occurred:', err);
         return { 
             statusCode: 500, 
-            body: 'An error occurred',
+            body: JSON.stringify({ message: 'An error occurred' }),
             headers: headers
         };
     }
