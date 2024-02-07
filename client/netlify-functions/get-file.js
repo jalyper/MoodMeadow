@@ -16,7 +16,7 @@ exports.handler = async function(event, context) {
 
     const origin = event.headers.origin;
     const headers = {
-        "Access-Control-Allow-Origin" : origin, // Set to the origin of the request
+        "Access-Control-Allow-Origin" : "*", // Set to the origin of the request
         "Access-Control-Allow-Methods": "GET, OPTIONS", // Allow GET and OPTIONS methods
         "Access-Control-Allow-Headers": "Content-Type, Authorization" // Allow these headers
     };
