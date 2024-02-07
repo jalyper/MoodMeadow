@@ -5,7 +5,6 @@ export const SoundsContext = createContext();
 
 export const SoundsProvider = ({ children }) => {
   const [sounds, setSounds] = useState([]);
-  console.log('process.env.REACT_APP_SOUND_BUCKET: ', process.env.REACT_APP_SOUND_BUCKET);
 
   useEffect(() => {
     setSounds([

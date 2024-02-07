@@ -14,9 +14,8 @@ exports.handler = async function(event, context) {
 
     context.callbackWaitsForEmptyEventLoop = false;
 
-    const origin = event.headers.origin;
     const headers = {
-        "Access-Control-Allow-Origin" : "*", // Set to the origin of the request
+        "Access-Control-Allow-Origin" : "https://moodmeadow.com", // Set to the origin of the request
         "Access-Control-Allow-Methods": "GET, OPTIONS", // Allow GET and OPTIONS methods
         "Access-Control-Allow-Headers": "Content-Type, Authorization" // Allow these headers
     };
@@ -91,11 +90,11 @@ exports.handler = async function(event, context) {
             body: JSON.stringify({ url: url }),
             headers: {
                 ...headers,
-                'Access-Control-Allow-Origin': '*', // Allow any origin
-                'Access-Control-Allow-Methods': 'GET',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Max-Age': '86400',  // Cache preflight response for 24 hours
-                'Content-Type': 'audio/wav' // Set the content type to audio/wav
+                'Access-Control-Allow-Origin': headers['Access-Control-Allow-Origin'] || 'https://moodmeadow.com',
+                'Access-Control-Allow-Methods': headers['Access-Control-Allow-Methods'] || 'GET',
+                'Access-Control-Allow-Headers': headers['Access-Control-Allow-Headers'] || 'Content-Type',
+                'Access-Control-Max-Age': headers['Access-Control-Max-Age'] || '86400',
+                'Content-Type': headers['Content-Type'] || 'audio/wav'
             }
         };
     } catch (err) {
