@@ -73,6 +73,12 @@ const DraggableSound = ({ sound, isDropped }) => {
         audioElement.oncanplaythrough = () => {
           audioElement.play().then(() => {
             setIsPlaying(true);
+            console.log('Audio element:', audioElement);
+            console.log('Ready state:', audioElement.readyState);
+            console.log('Paused:', audioElement.paused);
+            console.log('Volume:', audioElement.volume);
+            console.log('Muted:', audioElement.muted);
+            console.log('Audio context state:', audioCtx.state);
           }).catch(e => {
             console.error('Error playing sound:', e);
           });
