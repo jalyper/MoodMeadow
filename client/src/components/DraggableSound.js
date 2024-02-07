@@ -69,6 +69,7 @@ const DraggableSound = ({ sound, isDropped }) => {
         return response.blob();
       })
       .then(blob => {
+        console.log('Blob:', blob);
         audioElement.src = URL.createObjectURL(blob);
         audioElement.oncanplaythrough = () => {
           audioElement.play().then(() => {
