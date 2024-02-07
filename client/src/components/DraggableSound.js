@@ -11,13 +11,15 @@ const DraggableSound = ({ sound, isDropped }) => {
     const newAudioElement = new Audio();
     setAudioElement(newAudioElement);
 
+    let newTrackSrc;
+
     if (audioCtx) { // If the audio context already exists, connect the new audio element to it
-      const newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
+      newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
       newTrackSrc.connect(audioCtx.destination);
     } 
 
     return () => {
-      if (audioCtx) { // If the audio context exists, disconnect the new audio element from it
+      if (newTrackSrc) { // If the audio context exists, disconnect the new audio element from it
         newTrackSrc.disconnect();
       }
       newAudioElement.pause();
