@@ -63,25 +63,22 @@ const DraggableSound = ({ sound, isDropped }) => {
   
     fetch(`/.netlify/functions/get-file/${filename}`, requestOptions)
       .then(response => {
-        console.log('Response received:', response);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json();
+        return response.blob();
       })
-      .then(data => {
-        console.log('Response data:', data);
-        audioElement.src = data.url;
+      .then(blob => {
+        audioElement.src = URL.createObjectURL(blob);
         audioElement.oncanplaythrough = () => {
           audioElement.play().then(() => {
             setIsPlaying(true);
           }).catch(e => {
             console.error('Error playing sound:', e);
-            // Handle user interaction requirement for playing audio here, if necessary
           });
         };
       })
-      .catch(e => console.error('Error playing sound:', e));
+      .catch(e => console.error('Error fetching or playing sound:', e));
   };
   
   const stopSound = () => {
