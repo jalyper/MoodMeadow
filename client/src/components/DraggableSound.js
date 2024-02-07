@@ -5,20 +5,24 @@ import { getAudioContext, } from '../audioContext';
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
-  const audioCtx = getAudioContext();
+  const [audioCtx, setAudioCtx] = useState(null);
 
   useEffect(() => {
     const newAudioElement = new Audio();
     setAudioElement(newAudioElement);
 
-    const newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
-    newTrackSrc.connect(audioCtx.destination);
+    if (audioCtx) { // If the audio context already exists, connect the new audio element to it
+      const newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
+      newTrackSrc.connect(audioCtx.destination);
+    } 
 
     return () => {
-      newTrackSrc.disconnect();
+      if (audioCtx) { // If the audio context exists, disconnect the new audio element from it
+        newTrackSrc.disconnect();
+      }
       newAudioElement.pause();
     };
-  }, [audioCtx]);
+  }, [audioCtx]); // Add audioCtx to the dependency array
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'sound',
@@ -31,20 +35,22 @@ const DraggableSound = ({ sound, isDropped }) => {
   const playSound = () => {
     console.log('playSound function called');
   
-    // This will ensure that the audio context is resumed only when this function is called
-    // due to a user action (like clicking the "Play" button)
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
+    // Create the AudioContext when the button is clicked
+    const newAudioCtx = getAudioContext();
+    setAudioCtx(newAudioCtx); // Set the state variable
+
+    if (newAudioCtx.state === 'suspended') {
+      newAudioCtx.resume().then(() => {
         console.log('Audio context resumed');
-        fetchAndPlayAudio();
+        fetchAndPlayAudio(newAudioCtx);
       }).catch(e => console.error('Error resuming audio context:', e));
     } else {
-      fetchAndPlayAudio();
+      fetchAndPlayAudio(newAudioCtx);
     }
   };
   
   // This function fetches the audio file and plays it
-  const fetchAndPlayAudio = () => {
+  const fetchAndPlayAudio = (audioCtx) => {
     const filename = sound.src.split('/').pop();
     console.log(`Filename: ${filename}`);
     const token = localStorage.getItem('token'); // replace with your actual JWT token
