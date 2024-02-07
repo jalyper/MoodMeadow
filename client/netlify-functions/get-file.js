@@ -95,6 +95,7 @@ exports.handler = async function(event, context) {
                 'Access-Control-Allow-Methods': 'GET',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400',  // Cache preflight response for 24 hours
+                'Content-Type': 'audio/wav' // Set the content type to audio/wav
             }
         };
     } catch (err) {
