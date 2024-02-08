@@ -1,3 +1,4 @@
+// AWS API Function: /get-file
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 

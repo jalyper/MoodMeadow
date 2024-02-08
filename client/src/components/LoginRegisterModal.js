@@ -17,7 +17,7 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
     setLoginErrorMessage(''); // Clear any existing error messages
 
     try {
-      const response = await fetch('/.netlify/functions/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: 'POST',
         body: JSON.stringify({
           usernameOrEmail,
@@ -46,7 +46,7 @@ function LoginRegisterModal({ isOpen, onClose, setIsLoggedIn }) {
     e.preventDefault();
 
     try {
-      const response = await fetch('/.netlify/functions/register', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
         method: 'POST',
         body: JSON.stringify({
           username,

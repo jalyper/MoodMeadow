@@ -1,4 +1,4 @@
-// userArrangements.js
+// AWS API Function: /userArrangements
 const mongoose = require('mongoose');
 const UserArrangement = require('./models/UserArrangement'); // Adjust the path as necessary
 const User = require('./models/User'); // Adjust the path as necessary

@@ -1,4 +1,4 @@
-// userLibraries.js
+// AWS API Function: /userLibraries
 const mongoose = require('mongoose');
 const UserLibrary = require('./models/UserLibrary');
 const User = require('./models/User');

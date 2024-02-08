@@ -1,3 +1,4 @@
+// AWS API Function: /register
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -70,7 +71,7 @@ exports.handler = async function(event, context) {
 
         const payload = { user: { id: user.id } };
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h', issuer: 'https://moodmeadow.com', audience: 'https://moodmeadow.com'});
 
         return { 
             statusCode: 201, 
