@@ -24,7 +24,7 @@ exports.handler = async function(event, context) {
 
     // Set CORS headers
     const headers = {
-        'Access-Control-Allow-Origin': '*', // Or specify your origin to be more secure
+        'Access-Control-Allow-Origin': 'https://moodmeadow.com', // Or specify your origin to be more secure
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
