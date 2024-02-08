@@ -1,4 +1,0 @@
-*.wav
-/node_modules
-.env
-/sounds
