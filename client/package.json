@@ -40,12 +40,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": {
-    "/api": {
-      "target": "http://localhost:8888/.netlify/functions",
-      "pathRewrite": {"^/api/routes" : ""}
-    }
-  },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/plugin-transform-private-property-in-object": "^7.23.4"

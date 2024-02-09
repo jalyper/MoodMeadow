@@ -5,26 +5,7 @@ import { getAudioContext, } from '../audioContext';
 const DraggableSound = ({ sound, isDropped }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
-  const [audioCtx, setAudioCtx] = useState(null);
-
-  useEffect(() => {
-    const newAudioElement = new Audio();
-    setAudioElement(newAudioElement);
-
-    let newTrackSrc;
-
-    if (audioCtx) { // If the audio context already exists, connect the new audio element to it
-      newTrackSrc = audioCtx.createMediaElementSource(newAudioElement);
-      newTrackSrc.connect(audioCtx.destination);
-    } 
-
-    return () => {
-      if (newTrackSrc) { // If the audio context exists, disconnect the new audio element from it
-        newTrackSrc.disconnect();
-      }
-      newAudioElement.pause();
-    };
-  }, [audioCtx]); // Add audioCtx to the dependency array
+  const [audioCtx, setAudioCtx] = useState(getAudioContext());
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'sound',
@@ -37,63 +18,34 @@ const DraggableSound = ({ sound, isDropped }) => {
   const playSound = () => {
     console.log('playSound function called');
   
-    // Create the AudioContext when the button is clicked
-    const newAudioCtx = getAudioContext();
-    setAudioCtx(newAudioCtx); // Set the state variable
-
-    if (newAudioCtx.state === 'suspended') {
-      newAudioCtx.resume().then(() => {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
         console.log('Audio context resumed');
-        fetchAndPlayAudio(newAudioCtx);
+        fetchAndPlayAudio();
       }).catch(e => console.error('Error resuming audio context:', e));
     } else {
-      fetchAndPlayAudio(newAudioCtx);
+      fetchAndPlayAudio();
     }
   };
   
   // This function fetches the audio file and plays it
-  const fetchAndPlayAudio = (audioCtx) => {
-    const filename = sound.src.split('/').pop();
-    console.log(`Filename: ${filename}`);
-    const token = localStorage.getItem('token'); // replace with your actual JWT token
-    console.log(`Token: ${token}`);
-  
-    const headers = new Headers();
-    headers.append('Authorization', `Bearer ${token}`);
-  
-    const requestOptions = {
-      method: 'GET',
-      headers: headers,
-      mode: 'cors',
-    };
-  
-    console.log('Request options:', requestOptions);
-  
-    fetch(`/.netlify/functions/get-file/${filename}`, requestOptions)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.blob();
-      })
-      .then(blob => {
-        console.log('Blob:', blob);
-        audioElement.src = URL.createObjectURL(blob);
-        audioElement.oncanplaythrough = () => {
-          audioElement.play().then(() => {
-            setIsPlaying(true);
-            console.log('Audio element:', audioElement);
-            console.log('Ready state:', audioElement.readyState);
-            console.log('Paused:', audioElement.paused);
-            console.log('Volume:', audioElement.volume);
-            console.log('Muted:', audioElement.muted);
-            console.log('Audio context state:', audioCtx.state);
-          }).catch(e => {
-            console.error('Error playing sound:', e);
-          });
-        };
-      })
-      .catch(e => console.error('Error fetching or playing sound:', e));
+  const fetchAndPlayAudio = () => {
+    const newAudioElement = new Audio(sound.src);
+    setAudioElement(newAudioElement);
+    const trackSrc = audioCtx.createMediaElementSource(newAudioElement);
+    trackSrc.connect(audioCtx.destination);
+
+    newAudioElement.play().then(() => {
+      setIsPlaying(true);
+      console.log('Audio element:', newAudioElement);
+      console.log('Ready state:', newAudioElement.readyState);
+      console.log('Paused:', newAudioElement.paused);
+      console.log('Volume:', newAudioElement.volume);
+      console.log('Muted:', newAudioElement.muted);
+      console.log('Audio context state:', audioCtx.state);
+    }).catch(e => {
+      console.error('Error playing sound:', e);
+    });
   };
   
   const stopSound = () => {
@@ -101,6 +53,7 @@ const DraggableSound = ({ sound, isDropped }) => {
       audioElement.pause();
       audioElement.currentTime = 0;
       setIsPlaying(false);
+      setAudioElement(null); // Clean up the audio element
     }
   };
 
