@@ -31,6 +31,8 @@ const DraggableSound = ({ sound, isDropped }) => {
   // This function fetches the audio file and plays it
   const fetchAndPlayAudio = () => {
     const newAudioElement = new Audio(sound.src);
+    console.log('Sound src:', sound.src);
+    
     setAudioElement(newAudioElement);
     const trackSrc = audioCtx.createMediaElementSource(newAudioElement);
     trackSrc.connect(audioCtx.destination);

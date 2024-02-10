@@ -24,7 +24,7 @@ function MyLibrary() {
       try {
         const token = localStorage.getItem('token');
         if (token && userId) {
-          const response = await fetch(`/.netlify/functions/userLibraries/${userId}`, {
+          const response = await fetch(`${process.env.REACT_APP_API_URL_DEV}/userLibraries/${userId}`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`
@@ -140,7 +140,7 @@ function MyLibrary() {
       const userId = localStorage.getItem('userId'); // Assuming the user's ID is stored in local storage
       console.log('userId: ', userId);
       if (token) {
-        const response = await fetch(`/.netlify/functions/userLibraries/${userId}/arrangements/${arrangement._id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL_DEV}/userLibraries/${userId}/arrangements/${arrangement._id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

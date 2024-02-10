@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
 })
 
 // Login route
-router.post('/login', async (req, res) => {
+router.post('/', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
   console.log('Attempt to login:', usernameOrEmail); // Log the login attempt
 

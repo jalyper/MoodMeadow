@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const UserLibrary = require('../models/UserLibrary'); // Use the UserLibrary model
+const UserArrangement = require('../models/UserArrangement'); // Use the UserLibrary model
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 
@@ -47,47 +48,57 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.post('/save', auth, async (req, res) => {
-    const userId = req.user.id;
+  const userId = req.user.id;
 
-    try {
-        console.log(req.body);
-        const { arrangement } = req.body; // This should be the entire arrangement object
+  try {
+    console.log(req.body);
+    const { arrangement } = req.body; // This should be the entire arrangement object
 
-        // Make sure arrangement is an object, sounds is an array, and every sound has a name and src
-        if (typeof arrangement !== 'object' || 
-            !Array.isArray(arrangement.sounds) || 
-            !arrangement.sounds.every(sound => sound && sound.name && sound.src)) {
-                return res.status(400).json({ message: 'Invalid arrangement data.' });
-        }
-
-        // Find the user library or create a new one if it doesn't exist
-        let userLibrary = await UserLibrary.findOne({ userId: userId });
-
-        if (!userLibrary) {
-        userLibrary = new UserLibrary({
-            userId,
-            arrangements: []
-        });
-        }
-
-        // Check if the arrangement already exists in the user's library
-        const doesArrangementExist = userLibrary.arrangements.some(existingArrangement => {
-            return JSON.stringify(existingArrangement.sounds) === JSON.stringify(arrangement.sounds);
-        });
-
-        if (doesArrangementExist) {
-            return res.status(409).json({ message: 'Arrangement already exists in library' });
-        }
-
-        // Add the new arrangement to the user's library
-        userLibrary.arrangements.push(arrangement);
-
-        // Save the updated or new user library to the database
-        await userLibrary.save();
-        res.status(201).json(userLibrary);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    // Make sure arrangement is an object, sounds is an array, and every sound has a name and src
+    if (typeof arrangement !== 'object' || 
+        !Array.isArray(arrangement.sounds) || 
+        !arrangement.sounds.every(sound => sound && sound.name && sound.src)) {
+            return res.status(400).json({ message: 'Invalid arrangement data.' });
     }
+
+    // Find the user library or create a new one if it doesn't exist
+    let userLibrary = await UserLibrary.findOne({ userId: userId });
+
+    if (!userLibrary) {
+      userLibrary = new UserLibrary({
+        userId,
+        arrangements: []
+      });
+    }
+
+    // Check if the arrangement already exists in the user's library
+    const doesArrangementExist = userLibrary.arrangements.some(existingArrangement => {
+      return JSON.stringify(existingArrangement.sounds) === JSON.stringify(arrangement.sounds);
+    });
+
+    if (doesArrangementExist) {
+      return res.status(409).json({ message: 'Arrangement already exists in library' });
+    }
+
+    // Add the new arrangement to the user's library
+    userLibrary.arrangements.push(arrangement);
+
+    // Save the updated or new user library to the database
+    await userLibrary.save();
+
+    // Find the UserArrangement object by its ID and increment the totalSaves property
+    if (arrangement._id) {
+      const userArrangement = await UserArrangement.findById(arrangement._id);
+      if (userArrangement) {
+        userArrangement.totalSaves += 1;
+        await userArrangement.save();
+      }
+    }
+
+    res.status(201).json(userLibrary);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 router.delete('/:userId/arrangements/:arrangementId', auth, async (req, res) => {

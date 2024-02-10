@@ -8,7 +8,7 @@ import CommunityArrangementList from '../components/CommunityArrangementList';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 
 function Discover() {
-  const audioCtx = getAudioContext();
+
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
@@ -22,7 +22,7 @@ function Discover() {
   useEffect(() => {
     const fetchPublicArrangements = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/userArrangements/public-arrangements`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL_DEV}/userArrangements/public-arrangements`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -62,25 +62,57 @@ function Discover() {
   }, [searchTerm, communityArrangements]);
   
   // Function to play all sounds
-  const playAllSounds = () => {
-    // If the audio context is suspended
-    if (audioCtx.state === 'suspended') {
-      // Resume the audio context
-      resumeAudioContext().then(() => {
-        // Log a success message
-        console.log('Playback resumed successfully');
-        // For each audioNode
-        Object.values(audioNodes).forEach((audioNode) => {
-          // If the audioNode exists and has a trackSrc property with a mediaElement
-          if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
-            // Play the mediaElement
-            audioNode.trackSrc.mediaElement.play();
-          }
-        });
-        // Set isPlaying to true
-        setIsPlaying(true);
-      });
-    } 
+  const playAllSounds = async () => {
+    const audioCtx = getAudioContext();
+
+    // Always try to resume the audio context before playing sounds
+    try {
+      await audioCtx.resume();
+      console.log('Playback resumed successfully');
+    } catch (error) {
+      console.error('Error resuming audio context:', error);
+    }
+
+    // Create an array to hold the promises for the audio files loading
+    const loadPromises = [];
+
+    // For each audioNode
+    Object.values(audioNodes).forEach((audioNode) => {
+      // If the audioNode exists and has a trackSrc property with a mediaElement
+      if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
+        console.log('Track Source: ', audioNode.trackSrc.mediaElement.src);
+        // If the mediaElement is already loaded
+        if (audioNode.trackSrc.mediaElement.readyState >= 3) {
+          // Add a resolved promise to the array
+          loadPromises.push(Promise.resolve());
+        } else {
+          // Add a promise that resolves when the mediaElement is loaded to the array
+          loadPromises.push(new Promise((resolve) => {
+            audioNode.trackSrc.mediaElement.onloadeddata = resolve;
+          }));
+        }
+      }
+    });
+
+    // Wait for all the audio files to load
+    await Promise.all(loadPromises);
+
+    // Play all the audio files
+    Object.values(audioNodes).forEach((audioNode) => {
+      if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
+        try {
+          audioNode.trackSrc.mediaElement.play();
+        } catch (error) {
+          console.error('Error playing audio element:', audioNode.trackSrc.mediaElement.src, error);
+        }
+      }
+    });
+
+    // Set isPlaying to true
+    setIsPlaying(true);
+
+    console.log('Audio nodes: ', audioNodes);
+    console.log('Audio context state:', audioCtx.state);
   };
 
   const stopAllSounds = () => {
@@ -118,6 +150,7 @@ function Discover() {
     // Map over the arrangement's sounds
     arrangement.sounds.forEach((sound, index) => {
       if (sound) {
+        const audioCtx = getAudioContext();
         // Create a new Audio object with the sound source
         const audioElement = new Audio(sound.src);
         // Set the loop property of the audio element to the value of isLooping
@@ -149,21 +182,13 @@ function Discover() {
     console.log(arrangement);
   };
 
-
-    
-  // This function is used to save the currently loaded arrangement to the user's library
   const handleSaveToLibrary = async () => {
-    // Set the initial save status
     setSaveStatus('Saving...');
     try {
-      // Log the function call
       console.log('handleSaveToLibrary called');
-
-      // Retrieve the user's token from local storage
       const token = localStorage.getItem('token');
       console.log(`Retrieved token from local storage: ${token}`);
 
-      // Check if an arrangement is currently loaded
       if (!lastLoadedArrangement) {
         console.log('lastLoadedArrangement is null or undefined');
       } else {
@@ -171,58 +196,43 @@ function Discover() {
         console.log(lastLoadedArrangement);
       }
 
-      // If the user is logged in and an arrangement is loaded
       if (token && lastLoadedArrangement) {
         console.log('User is logged in and an arrangement is selected');
 
-        try {
-          console.log('Sending POST request to save arrangement');
+        console.log('Sending POST request to save arrangement');
+        const response = await fetch(`${process.env.REACT_APP_API_URL_DEV}/userLibraries/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ arrangement: lastLoadedArrangement })
+        });
 
-          // Send a POST request to save the arrangement
-          const response = await fetch(`/.netlify/functions/userLibraries`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ arrangement: lastLoadedArrangement })
-          });
+        console.log(`Received response with status code: ${response.status}`);
 
-          console.log(`Received response with status code: ${response.status}`);
-
-          // If the arrangement was saved successfully
-          if (response.status === 201) {
-            console.log('Saved successfully!');
-            setSaveStatus('Saved successfully!');
-            // Clear the currently loaded arrangement
-            setLastLoadedArrangement(null);
-          }
-
-        } catch (error) {
-          // If the arrangement already exists in the library
-          if (error.response && error.response.status === 409) {
-            console.log('Arrangement already exists in library');
-            setSaveStatus('Arrangement already exists in library');
-          } else {
-            // If there was an error saving the arrangement
-            console.error('Saving failed. Error: ', error);
-            setSaveStatus('Saving Failed!');
-          }
+        if (response.ok) {
+          console.log('Saved successfully!');
+          setSaveStatus('Saved successfully!');
+          setLastLoadedArrangement(null);
+        } else if (response.status === 409) {
+          console.log('Arrangement already exists in library');
+          setSaveStatus('Arrangement already exists in library');
+        } else {
+          throw new Error(`Server responded with status code: ${response.status}`);
         }
+
       } else {
-        // If the user is not logged in
         if (!token) {
           console.warn('User is not logged in.');
           setSaveStatus('You must log in to save arrangements.');
         }
-        // If no arrangement is loaded
         if (!lastLoadedArrangement) {
           console.warn('No arrangement is selected.');
           setSaveStatus('You must select an arrangement to save.');
         }
       }
     } catch (error) {
-      // If there was an error in the function
       console.error('Saving failed. Error: ', error);
       setSaveStatus('Saving Failed!');
     }
@@ -231,6 +241,7 @@ function Discover() {
 
   const handleDrop = (item, slotIndex) => {
     const newDroppedSounds = [...droppedSounds];
+    const audioCtx = getAudioContext();
     newDroppedSounds[slotIndex] = item.name;
     setDroppedSounds(newDroppedSounds);
   

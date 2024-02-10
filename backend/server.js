@@ -20,10 +20,10 @@ app.use(express.json()); // Allows us to accept JSON data in our API
 
 // Define Routes
 // app.use('/api', fileRequests);
-app.use('/api', logins);
-app.use('/api', registrations);
-app.use('/api', userArrangements);
-app.use('/api', userLibraries);
+app.use('/api/login', logins);
+app.use('/api/register', registrations);
+app.use('/api/userArrangements', userArrangements);
+app.use('/api/userLibraries', userLibraries);
 
 const PORT = process.env.PORT || 5000;
 

@@ -27,7 +27,7 @@ router.get('/public-arrangements', async (req, res) => {
 
 router.post('/save', auth, async (req, res) => {
   const userId = req.user.id; 
-
+  console.log('Post request to /api/userArrangements/save: ', req.body, userId)
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -43,10 +43,11 @@ router.post('/save', auth, async (req, res) => {
     let totalSavesIncremented = false;
     if (originalArrangementId) {
       // Find and update the original arrangement
-      const originalArrangement = await UserArrangement.findById(originalArrangementId);
+      const originalArrangement = await UserArrangement.findByIdAndUpdate(
+        originalArrangementId,
+        { $inc: { totalSaves: 1 } },
+      );
       if (originalArrangement) {
-        originalArrangement.totalSaves += 1;
-        await originalArrangement.save();
         totalSavesIncremented = true;
       }
     }

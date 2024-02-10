@@ -181,13 +181,13 @@ function Create() {
     };
 
     try {
-      const userArrangementsResponse = await postArrangement('/.netlify/functions/userArrangements', userArrangementsData);
+      const userArrangementsResponse = await postArrangement(process.env.REACT_APP_API_URL_DEV + '/userArrangements/save', userArrangementsData);
 
       if (userArrangementsResponse.status !== 201 && userArrangementsResponse.status !== 200) {
         throw new Error(`Failed to save to userArrangements. Status: ${userArrangementsResponse.status}, Response: ${JSON.stringify(userArrangementsResponse.body)}`);
       }
 
-      const userLibrariesResponse = await postArrangement('/.netlify/functions/userLibraries', userLibrariesData);
+      const userLibrariesResponse = await postArrangement(process.env.REACT_APP_API_URL_DEV + '/userLibraries/save', userLibrariesData);
 
       if (userLibrariesResponse.status !== 201 && userLibrariesResponse.status !== 200) {
         throw new Error(`Failed to save to userLibraries. Status: ${userLibrariesResponse.status}, Response: ${JSON.stringify(userLibrariesResponse.body)}`);
