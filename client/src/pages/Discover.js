@@ -61,58 +61,26 @@ function Discover() {
     }
   }, [searchTerm, communityArrangements]);
   
-  // Function to play all sounds
-  const playAllSounds = async () => {
+  const playAllSounds = () => {
     const audioCtx = getAudioContext();
-
-    // Always try to resume the audio context before playing sounds
-    try {
-      await audioCtx.resume();
-      console.log('Playback resumed successfully');
-    } catch (error) {
-      console.error('Error resuming audio context:', error);
-    }
-
-    // Create an array to hold the promises for the audio files loading
-    const loadPromises = [];
-
-    // For each audioNode
-    Object.values(audioNodes).forEach((audioNode) => {
-      // If the audioNode exists and has a trackSrc property with a mediaElement
-      if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
-        console.log('Track Source: ', audioNode.trackSrc.mediaElement.src);
-        // If the mediaElement is already loaded
-        if (audioNode.trackSrc.mediaElement.readyState >= 3) {
-          // Add a resolved promise to the array
-          loadPromises.push(Promise.resolve());
-        } else {
-          // Add a promise that resolves when the mediaElement is loaded to the array
-          loadPromises.push(new Promise((resolve) => {
-            audioNode.trackSrc.mediaElement.onloadeddata = resolve;
-          }));
-        }
-      }
-    });
-
-    // Wait for all the audio files to load
-    await Promise.all(loadPromises);
-
-    // Play all the audio files
-    Object.values(audioNodes).forEach((audioNode) => {
-      if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
-        try {
+    if (audioCtx.state === 'suspended') {
+      resumeAudioContext().then(() => {
+        console.log('Playback resumed successfully');
+        Object.values(audioNodes).forEach((audioNode) => {
+          if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
+            audioNode.trackSrc.mediaElement.play();
+          }
+        });
+        setIsPlaying(true);
+      });
+    } else {
+      Object.values(audioNodes).forEach((audioNode) => {
+        if (audioNode && audioNode.trackSrc && audioNode.trackSrc.mediaElement) {
           audioNode.trackSrc.mediaElement.play();
-        } catch (error) {
-          console.error('Error playing audio element:', audioNode.trackSrc.mediaElement.src, error);
         }
-      }
-    });
-
-    // Set isPlaying to true
-    setIsPlaying(true);
-
-    console.log('Audio nodes: ', audioNodes);
-    console.log('Audio context state:', audioCtx.state);
+      });
+      setIsPlaying(true);
+    }
   };
 
   const stopAllSounds = () => {
@@ -123,7 +91,7 @@ function Discover() {
       }
     });
     setIsPlaying(false);
-  };
+  };  
   
   const clearLoadedSounds = () => {
     stopAllSounds();

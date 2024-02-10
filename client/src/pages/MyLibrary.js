@@ -10,7 +10,6 @@ import { useAuth } from '../contexts/AuthContext';
 // other imports...
 
 function MyLibrary() {
-  const audioCtx = getAudioContext();
   const [audioNodes, setAudioNodes] = useState({});
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [isLooping, setIsLooping] = useState(false);
@@ -47,7 +46,7 @@ function MyLibrary() {
 
     fetchUserLibraryArrangements();
   }, [userId]);
-  
+
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
     Object.keys(audioNodes).forEach(key => {
@@ -58,6 +57,7 @@ function MyLibrary() {
   }, [isLooping, audioNodes]);  
 
   const playAllSounds = () => {
+    const audioCtx = getAudioContext();
     if (audioCtx.state === 'suspended') {
       resumeAudioContext().then(() => {
         console.log('Playback resumed successfully');
@@ -106,6 +106,7 @@ function MyLibrary() {
   
 
   const handleLoadArrangement = (arrangement) => {
+    const audioCtx = getAudioContext();
     // Start with an empty object for newAudioNodes
     let newAudioNodes = {};
   
@@ -160,6 +161,7 @@ function MyLibrary() {
   };
 
   const handleDrop = (item, slotIndex) => {
+    const audioCtx = getAudioContext();
     const newDroppedSounds = [...droppedSounds];
     newDroppedSounds[slotIndex] = item.name;
     setDroppedSounds(newDroppedSounds);

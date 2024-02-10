@@ -48,6 +48,25 @@ function Create() {
     });
   }, [isLooping, audioNodes]);
 
+  // Global state to keep track of the currently playing audio
+  let currentlyPlaying = null;
+
+  const playSound = (audioElement) => {
+    console.log('playSound function called');
+    // If there's a sound currently playing, stop it
+    if (currentlyPlaying) {
+      console.log('Stopping currently playing sound:', currentlyPlaying);
+      currentlyPlaying.pause();
+      currentlyPlaying.currentTime = 0;
+    }
+
+    // Play the new sound
+    audioElement.play().catch(e => console.error('Error playing sound:', e));
+
+    // Update the currently playing sound
+    currentlyPlaying = audioElement;
+  };
+
   const playAllSounds = () => {
     const audioCtx = getAudioContext();
     if (audioCtx.state === 'suspended') {
@@ -55,14 +74,14 @@ function Create() {
         console.log('Playback resumed successfully');
         Object.values(audioNodes).forEach(({ audioElement }) => {
           if (audioElement && audioElement.src) { // Check if the src is truthy before playing
-            audioElement.play().catch(e => console.error('Error playing sound:', e));
+            playSound(audioElement);
           }
         });
       }).catch(e => console.error('Error resuming audio context:', e));
     } else {
       Object.values(audioNodes).forEach(({ audioElement }) => {
         if (audioElement && audioElement.src) { // Check if the src is truthy before playing
-          audioElement.play().catch(e => console.error('Error playing sound:', e));
+          playSound(audioElement);
         }
       });
     }
