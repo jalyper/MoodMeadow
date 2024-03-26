@@ -9,6 +9,8 @@ import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
 import { getAudioContext, resumeAudioContext } from '../audioContext';
 import { useAuth } from '../contexts/AuthContext';
+import AudioPlayer from '../components/AudioPlayer';
+import { set } from 'mongoose';
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +24,7 @@ function Create() {
   const [audioNodes, setAudioNodes] = useState({});
   const [isLooping, setIsLooping] = useState(false);
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
+  const [currentAudio, setCurrentAudio] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -34,7 +37,7 @@ function Create() {
         console.log('Found User ID: ', userId);
       } else {
         setIsLoggedIn(false);
-        console.log('User ID:', userId);
+        console.log('User ID could not be found');
       }
     }
   }, [userId]);
@@ -49,7 +52,7 @@ function Create() {
   }, [isLooping, audioNodes]);
 
   // Global state to keep track of the currently playing audio
-  let currentlyPlaying = null;
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
 
   const playSound = (audioElement) => {
     console.log('playSound function called');
@@ -64,13 +67,13 @@ function Create() {
     audioElement.play().catch(e => console.error('Error playing sound:', e));
 
     // Update the currently playing sound
-    currentlyPlaying = audioElement;
+    setCurrentlyPlaying(audioElement);
   };
 
   const playAllSounds = () => {
     const audioCtx = getAudioContext();
     if (audioCtx.state === 'suspended') {
-      resumeAudioContext().then(() => {
+      audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
         Object.values(audioNodes).forEach(({ audioElement }) => {
           if (audioElement && audioElement.src) { // Check if the src is truthy before playing
@@ -92,27 +95,12 @@ function Create() {
   );
 
   const handleDrop = (item, slotIndex) => {
-    const audioCtx = getAudioContext();
     const newDroppedSounds = [...droppedSounds];
     newDroppedSounds[slotIndex] = item.name;
     setDroppedSounds(newDroppedSounds);
-  
-    // Only create new audio elements and nodes if they don't already exist for the slot
-    if (!audioNodes[slotIndex]) {
-      const audioElement = new Audio(item.src);
-      audioElement.loop = isLooping; // Set loop based on isLooping state
-      const trackSrc = audioCtx.createMediaElementSource(audioElement);
-      const gainNode = audioCtx.createGain();
-      const pannerNode = audioCtx.createStereoPanner();
-  
-      trackSrc.connect(gainNode).connect(pannerNode).connect(audioCtx.destination);
-  
-      // Update the audioNodes state with new audio nodes
-      setAudioNodes(prevNodes => ({
-        ...prevNodes,
-        [slotIndex]: { trackSrc, gainNode, pannerNode, audioElement }
-      }));
-    }
+
+    // Set currentAudio to the dropped item's source
+    setCurrentAudio(item.src);
   };
 
   const clearDroppedSounds = () => {
@@ -272,6 +260,7 @@ function Create() {
               <DraggableSound 
                 key={sound.id} 
                 sound={sound}
+                onPlay={setCurrentAudio}
                 isDropped={droppedSounds.includes(sound.id)} 
               />
             ))}
@@ -297,7 +286,9 @@ function Create() {
               index={index} 
               droppedSound={droppedSound} 
               audioNodes={audioNodes}
-            />
+              currentAudio={currentAudio}
+              setCurrentAudio={setCurrentAudio}
+          />
           ))}
         </div>
         <label className="make-private-checkbox">
@@ -314,6 +305,7 @@ function Create() {
         <button onClick={clearDroppedSounds} className="clear-button">Clear</button>
         {saveMessage && <div className="saved-to-library-result"> {saveMessage}</div>}
         <p className="save-to-library-summary">If you'd like to share your creation with the Mood Meadow community, click Save to Library with "Make Private" unchecked!</p>
+        <AudioPlayer currentAudio={currentAudio} setCurrentAudio={setCurrentAudio}/>
       </div>
     </DndProvider>
   );

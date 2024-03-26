@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import UserLibraryList from '../components/UserLibraryList';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 // other imports...
 
 function MyLibrary() {
@@ -15,10 +16,11 @@ function MyLibrary() {
   const [isLooping, setIsLooping] = useState(false);
   const [, setIsPlaying] = useState(false);
   const [userLibraryArrangements, setUserLibraryArrangements] = useState([]);
-  const {userId} = useAuth(); // Assuming you have a custom hook for getting the user's ID
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Declare isLoggedIn as a state variable
+  const {userId} = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
-    // Fetch arrangements from the user's library
     const fetchUserLibraryArrangements = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -30,22 +32,30 @@ function MyLibrary() {
             }
           });
 
+          if (response.ok) {
+            setIsLoggedIn(true); // Set isLoggedIn to true here
+            console.log('response.ok: ', response.ok);
+            const data = await response.json();
+            setUserLibraryArrangements(data.arrangements);
+          }
+          
           if (!response.ok) {
+            localStorage.removeItem('token');
+            console.log('token removed');
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-
-          const data = await response.json();
-
-          // Here you need to make sure you're setting the state with the arrangements array
-          setUserLibraryArrangements(data.arrangements); // This should now be correct
         }
       } catch (error) {
+        setIsLoggedIn(false); // Set isLoggedIn to false here
         console.error('Error fetching user library arrangements', error);
       }
     };
 
-    fetchUserLibraryArrangements();
-  }, [userId]);
+    if (userId) {
+      console.log('fetching user library arrangements');
+      fetchUserLibraryArrangements();
+    }
+  }, [userId, location.pathname]); // Remove isLoggedIn from the dependency array
 
   useEffect(() => {
     // This effect updates the loop property whenever isLooping or audioNodes change
@@ -206,7 +216,7 @@ function MyLibrary() {
             </Link>
           </div>
           <div className='right-header-content'>
-            <LoginLogoutButton />
+            <LoginLogoutButton isLoggedIn={isLoggedIn} />
             <Link to="/" className="icon-link">
               <div className="home-icon">
                 <span className="icon-text">Home</span><br />
@@ -250,6 +260,7 @@ function MyLibrary() {
             <button onClick={playAllSounds} className='play-all-button'>Play</button>
             <button onClick={stopAllSounds} className="stop-button">Stop</button>
             <button onClick={clearLoadedSounds} className="clear-button">Clear</button>
+            <p className='loggedIn'>Is Logged In: {String(isLoggedIn)}</p>
           </div>
         </div><br />
         <div className='my-library-summary'><h3>Load a saved arrangement to begin your journey to zen.</h3></div>

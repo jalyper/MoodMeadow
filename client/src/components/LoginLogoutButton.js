@@ -10,8 +10,10 @@ const LoginLogoutButton = () => {
   const handleButtonClick = async (e) => {
     e.preventDefault();
     if (isLoggedIn) {
+      console.log('logout button clicked, logging out');
       logout();
     } else {
+      console.log('login button clicked, showing login modal');
       setShowLoginModal(true);
     }
   };

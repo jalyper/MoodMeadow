@@ -585,6 +585,7 @@ footer {
 
 .pan-label {
   font-size: small;
+  float: right;
 }
 
 .volume-control {
@@ -594,6 +595,7 @@ footer {
 
 .volume-label {
   font-size: small;
+  float: right;
 }
 
 .my-library-title {
@@ -626,6 +628,30 @@ footer {
 }
 
 .create-title {
+  margin: 10px;
+}
+
+.audio-player {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  background: linear-gradient(180deg, #324053, #1c1e24);
+  color: black;
+}
+
+.progress-bar {
+  background: linear-gradient(180deg, #708199, #a0b4f0);
+  color: gray;
+}
+
+.play-stop-btn {
+  padding: 10px 20px;
+  margin: 10px
+}
+
+.loop-btn {
+  padding: 10px 20px;
   margin: 10px;
 }
 
