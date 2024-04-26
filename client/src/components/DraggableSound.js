@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getAudioContext, } from '../audioContext';
 
@@ -27,21 +27,30 @@ const DraggableSound = ({ sound, isDropped, onPlay }) => {
     }
   };
 
-  const playSound = () => {
+  const playSound = async () => {
     console.log('playSound function called');
-    onPlay(sound.src);
+    const audio = await onPlay(sound.src);
     console.log('Sound src: ', sound.src);
+    audio.onplay = () => {
+      console.log('Audio started playing');
+    };
+    setAudioElement(audio);
     setIsPlaying(true);
   };
 
   const stopSound = () => {
+    console.log('stopSound function called');
     if (audioElement) {
       audioElement.pause();
       audioElement.currentTime = 0;
       setIsPlaying(false);
       setAudioElement(null); // Clean up the audio element
+    } else {
+      setIsPlaying(false);
     }
   };
+
+  console.log('Render method: isPlaying = ', isPlaying);
 
   return (
     <div ref={drag} className={`sound-sample ${isDropped ? 'grayed-out' : ''}`} style={{ opacity: isDragging ? 0.5 : 1 }}>

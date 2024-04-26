@@ -7,10 +7,10 @@ import Arranger from '../components/Arranger';
 import LoginRegisterModal from '../components/LoginRegisterModal';
 import LoginLogoutButton from '../components/LoginLogoutButton';
 import { SoundsContext } from '../contexts/SoundsContext';
-import { getAudioContext, resumeAudioContext } from '../audioContext';
+import { getAudioContext } from '../audioContext';
 import { useAuth } from '../contexts/AuthContext';
 import AudioPlayer from '../components/AudioPlayer';
-import { set } from 'mongoose';
+
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,6 +53,13 @@ function Create() {
 
   // Global state to keep track of the currently playing audio
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+
+  const setCurrentAudioSrc = async (src) => {
+    const audio = new Audio(src);
+    await audio.play();
+    setCurrentAudio(audio); // Use the state update function here
+    return audio;
+  };
 
   const playSound = (audioElement) => {
     console.log('playSound function called');
@@ -260,7 +267,7 @@ function Create() {
               <DraggableSound 
                 key={sound.id} 
                 sound={sound}
-                onPlay={setCurrentAudio}
+                onPlay={setCurrentAudioSrc}
                 isDropped={droppedSounds.includes(sound.id)} 
               />
             ))}
