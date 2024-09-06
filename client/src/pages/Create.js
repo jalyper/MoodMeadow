@@ -25,6 +25,8 @@ function Create() {
   const [isLooping, setIsLooping] = useState(false);
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [currentAudio, setCurrentAudio] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentlyPlayingName, setCurrentlyPlayingName] = useState("NEW ARRANGEMENT");
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -61,20 +63,20 @@ function Create() {
     return audio;
   };
 
-  const playSound = (audioElement) => {
-    console.log('playSound function called');
-    // If there's a sound currently playing, stop it
+  const handlePlaySound = (sound, isPlaying) => {
+    console.log(`Sound ${sound.name} is now ${isPlaying ? 'stopped' : 'playing'}`);
     if (currentlyPlaying) {
-      console.log('Stopping currently playing sound:', currentlyPlaying);
       currentlyPlaying.pause();
       currentlyPlaying.currentTime = 0;
     }
-
+  
     // Play the new sound
+    const audioElement = new Audio(sound.src);
     audioElement.play().catch(e => console.error('Error playing sound:', e));
-
+  
     // Update the currently playing sound
     setCurrentlyPlaying(audioElement);
+    setCurrentlyPlayingName(sound.name);
   };
 
   const playAllSounds = () => {
@@ -82,19 +84,21 @@ function Create() {
     if (audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => {
         console.log('Playback resumed successfully');
-        Object.values(audioNodes).forEach(({ audioElement }) => {
-          if (audioElement && audioElement.src) { // Check if the src is truthy before playing
-            playSound(audioElement);
-          }
-        });
+        playAudioNodes();
       }).catch(e => console.error('Error resuming audio context:', e));
     } else {
-      Object.values(audioNodes).forEach(({ audioElement }) => {
-        if (audioElement && audioElement.src) { // Check if the src is truthy before playing
-          playSound(audioElement);
-        }
-      });
+      playAudioNodes();
     }
+    setCurrentlyPlayingName("Current Arrangement");
+  };
+
+  const playAudioNodes = () => {
+    Object.values(audioNodes).forEach(({ audioElement }) => {
+      if (audioElement && audioElement.src) {
+        audioElement.play();
+      }
+    });
+    setIsPlaying(true);
   };
   
   const filteredSounds = sounds.filter(sound => 
@@ -106,8 +110,23 @@ function Create() {
     newDroppedSounds[slotIndex] = item.name;
     setDroppedSounds(newDroppedSounds);
 
-    // Set currentAudio to the dropped item's source
-    setCurrentAudio(item.src);
+    // Create an Audio object for the dropped sound
+    const audio = new Audio(item.src);
+    setAudioNodes(prev => ({
+      ...prev,
+      [slotIndex]: { audioElement: audio }
+    }));
+
+    // Set currentAudio to the dropped item's audio object
+    setCurrentAudio(audio);
+    setCurrentlyPlayingName(item.name);
+
+    // Play the sound
+    audio.play().then(() => {
+      setIsPlaying(true);
+    }).catch(error => {
+      console.error('Error playing sound:', error);
+    });
   };
 
   const clearDroppedSounds = () => {
@@ -263,14 +282,14 @@ function Create() {
             <button className="sort-by-popularity-button">MOST POPULAR</button> 
             <button className="sort-by-age-button">UPLOAD DATE (NEWEST TO OLDEST)</button>
           </div>
-            {filteredSounds.map((sound) => (
-              <DraggableSound 
-                key={sound.id} 
-                sound={sound}
-                onPlay={setCurrentAudioSrc}
-                isDropped={droppedSounds.includes(sound.id)} 
-              />
-            ))}
+          {filteredSounds.map((sound) => (
+            <DraggableSound 
+              key={sound.id} 
+              sound={sound}
+              onPlay={handlePlaySound}
+              isDropped={droppedSounds.includes(sound.id)} 
+            />
+          ))}
         </div>
         <h2 className="arranger-title">ARRANGER</h2>
         <div className="loop-toggle">
@@ -295,6 +314,7 @@ function Create() {
               audioNodes={audioNodes}
               currentAudio={currentAudio}
               setCurrentAudio={setCurrentAudio}
+              setCurrentlyPlayingName={setCurrentlyPlayingName}
           />
           ))}
         </div>
@@ -312,7 +332,15 @@ function Create() {
         <button onClick={clearDroppedSounds} className="clear-button">Clear</button>
         {saveMessage && <div className="saved-to-library-result"> {saveMessage}</div>}
         <p className="save-to-library-summary">If you'd like to share your creation with the Mood Meadow community, click Save to Library with "Make Private" unchecked!</p>
-        <AudioPlayer currentAudio={currentAudio} setCurrentAudio={setCurrentAudio}/>
+        <AudioPlayer 
+          currentAudio={currentAudio} 
+          setCurrentAudio={setCurrentAudio}
+          currentlyPlayingName={currentlyPlayingName}
+          setCurrentlyPlayingName={setCurrentlyPlayingName}
+          audioNodes={audioNodes}
+          isPlaying={isPlaying} 
+          setIsPlaying={setIsPlaying} 
+        />
       </div>
     </DndProvider>
   );

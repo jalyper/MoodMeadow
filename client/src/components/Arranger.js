@@ -1,6 +1,6 @@
 import { useDrop } from 'react-dnd';
 
-const Arranger = ({ onDrop, index, droppedSound, audioNodes }) => {
+const Arranger = ({ onDrop, index, droppedSound, audioNodes, setAudioNodes }) => {
   const [{ canDrop, isOver }, drop] = useDrop({
     accept: 'sound',
     drop: (item, monitor) => {
@@ -18,16 +18,21 @@ const Arranger = ({ onDrop, index, droppedSound, audioNodes }) => {
   });
 
   const handleVolumeChange = (e) => {
-    if (audioNodes[index] && audioNodes[index].gainNode) {
+    if (audioNodes[index] && audioNodes[index].audioElement) {
       const volume = e.target.value;
-      audioNodes[index].gainNode.gain.value = volume;
+      audioNodes[index].audioElement.volume = volume;
+      setAudioNodes({...audioNodes});
     }
   };
 
   const handlePanChange = (e) => {
-    if (audioNodes[index] && audioNodes[index].pannerNode) {
+    if (audioNodes[index] && audioNodes[index].audioElement) {
       const pan = e.target.value;
-      audioNodes[index].pannerNode.pan.value = pan;
+      const pannerNode = audioNodes[index].audioElement.context.createStereoPanner();
+      pannerNode.pan.value = pan;
+      audioNodes[index].audioElement.disconnect();
+      audioNodes[index].audioElement.connect(pannerNode).connect(audioNodes[index].audioElement.context.destination);
+      setAudioNodes({...audioNodes});
     }
   };
 
