@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -10,7 +10,6 @@ import { SoundsContext } from '../contexts/SoundsContext';
 import { getAudioContext } from '../audioContext';
 import { useAuth } from '../contexts/AuthContext';
 import AudioPlayer from '../components/AudioPlayer';
-
 
 function Create() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,7 +25,10 @@ function Create() {
   const [droppedSounds, setDroppedSounds] = useState(Array(5).fill(null));
   const [currentAudio, setCurrentAudio] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentlyPlayingName, setCurrentlyPlayingName] = useState("NEW ARRANGEMENT");
+  const [currentlyPlayingName, setCurrentlyPlayingName] = useState("");
+  const [playingSoundId, setPlayingSoundId] = useState(null);
+  const audioRef = useRef(new Audio());
+  const [currentlyPlayingSound, setCurrentlyPlayingSound] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -56,27 +58,13 @@ function Create() {
   // Global state to keep track of the currently playing audio
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
 
-  const setCurrentAudioSrc = async (src) => {
-    const audio = new Audio(src);
-    await audio.play();
-    setCurrentAudio(audio); // Use the state update function here
-    return audio;
-  };
-
   const handlePlaySound = (sound, isPlaying) => {
-    console.log(`Sound ${sound.name} is now ${isPlaying ? 'stopped' : 'playing'}`);
-    if (currentlyPlaying) {
-      currentlyPlaying.pause();
-      currentlyPlaying.currentTime = 0;
+    console.log(`Sound ${sound.name} is now ${isPlaying ? 'playing' : 'stopped'}`);
+    if (isPlaying) {
+      setCurrentlyPlayingSound(sound);
+    } else {
+      setCurrentlyPlayingSound(null);
     }
-  
-    // Play the new sound
-    const audioElement = new Audio(sound.src);
-    audioElement.play().catch(e => console.error('Error playing sound:', e));
-  
-    // Update the currently playing sound
-    setCurrentlyPlaying(audioElement);
-    setCurrentlyPlayingName(sound.name);
   };
 
   const playAllSounds = () => {
@@ -332,15 +320,9 @@ function Create() {
         <button onClick={clearDroppedSounds} className="clear-button">Clear</button>
         {saveMessage && <div className="saved-to-library-result"> {saveMessage}</div>}
         <p className="save-to-library-summary">If you'd like to share your creation with the Mood Meadow community, click Save to Library with "Make Private" unchecked!</p>
-        <AudioPlayer 
-          currentAudio={currentAudio} 
-          setCurrentAudio={setCurrentAudio}
-          currentlyPlayingName={currentlyPlayingName}
-          setCurrentlyPlayingName={setCurrentlyPlayingName}
-          audioNodes={audioNodes}
-          isPlaying={isPlaying} 
-          setIsPlaying={setIsPlaying} 
-        />
+        {currentlyPlayingSound && (
+          <div>Currently playing: {currentlyPlayingSound.name}</div>
+        )}
       </div>
     </DndProvider>
   );
