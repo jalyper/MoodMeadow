@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -12,6 +12,8 @@ import { useAuth } from '../contexts/AuthContext';
 import AudioPlayer from '../components/AudioPlayer';
 
 function Create() {
+  console.log('CREATE COMPONENT RENDERED');
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,7 +29,6 @@ function Create() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentlyPlayingName, setCurrentlyPlayingName] = useState("");
   const [playingSoundId, setPlayingSoundId] = useState(null);
-  const audioRef = useRef(new Audio());
   const [currentlyPlayingSound, setCurrentlyPlayingSound] = useState(null);
 
   useEffect(() => {
@@ -67,55 +68,61 @@ function Create() {
     }
   };
 
-  const playAllSounds = () => {
-    const audioCtx = getAudioContext();
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
-        console.log('Playback resumed successfully');
-        playAudioNodes();
-      }).catch(e => console.error('Error resuming audio context:', e));
-    } else {
-      playAudioNodes();
-    }
-    setCurrentlyPlayingName("Current Arrangement");
-  };
-
-  const playAudioNodes = () => {
-    Object.values(audioNodes).forEach(({ audioElement }) => {
-      if (audioElement && audioElement.src) {
-        audioElement.play();
-      }
-    });
-    setIsPlaying(true);
-  };
-  
-  const filteredSounds = sounds.filter(sound => 
-    sound.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleDrop = (item, slotIndex) => {
+  const handleDrop = useCallback((item, slotIndex) => {
     const newDroppedSounds = [...droppedSounds];
     newDroppedSounds[slotIndex] = item.name;
     setDroppedSounds(newDroppedSounds);
 
-    // Create an Audio object for the dropped sound
-    const audio = new Audio(item.src);
+    // Create an Audio object for the dropped sound, but don't play it
+    const audio = new Audio();
+    audio.src = item.src;
+    audio.preload = 'auto';
+    audio.load();
+
     setAudioNodes(prev => ({
       ...prev,
       [slotIndex]: { audioElement: audio }
     }));
 
-    // Set currentAudio to the dropped item's audio object
-    setCurrentAudio(audio);
     setCurrentlyPlayingName(item.name);
+  }, [droppedSounds, setCurrentlyPlayingName]);
 
-    // Play the sound
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch(error => {
-      console.error('Error playing sound:', error);
+  const handleVolumeChange = useCallback((index, volume) => {
+    setAudioNodes(prev => {
+      if (prev[index] && prev[index].audioElement) {
+        prev[index].audioElement.volume = volume;
+      }
+      return {...prev};
     });
-  };
+  }, []);
+
+  const handlePanChange = useCallback((index, pan) => {
+    setAudioNodes(prev => {
+      if (prev[index] && prev[index].audioElement) {
+        const pannerNode = prev[index].audioElement.context.createStereoPanner();
+        pannerNode.pan.value = pan;
+        prev[index].audioElement.disconnect();
+        prev[index].audioElement.connect(pannerNode).connect(prev[index].audioElement.context.destination);
+      }
+      return {...prev};
+    });
+  }, []);
+
+  const playAllSounds = useCallback(() => {
+    console.log('playAllSounds called');
+    Object.values(audioNodes).forEach(({ audioElement }) => {
+      if (audioElement && audioElement.src) {
+        audioElement.currentTime = 0; // Reset to start
+        audioElement.play().catch(e => console.error('Error playing sound:', e));
+      }
+    });
+    setIsPlaying(true);
+    setCurrentlyPlayingName("Current Arrangement");
+  }, [audioNodes, setIsPlaying, setCurrentlyPlayingName]);
+
+  const filteredSounds = sounds.filter(sound => 
+    sound.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const clearDroppedSounds = () => {
     Object.values(audioNodes).forEach(({ audioElement }) => {
@@ -221,6 +228,12 @@ function Create() {
     }
   };
   
+  console.log('Create component rendering. Current state:', {
+    droppedSounds,
+    audioNodes,
+    currentlyPlayingName
+  });
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="create-page">  
@@ -298,12 +311,10 @@ function Create() {
               key={index} 
               onDrop={handleDrop} 
               index={index} 
-              droppedSound={droppedSound} 
-              audioNodes={audioNodes}
-              currentAudio={currentAudio}
-              setCurrentAudio={setCurrentAudio}
-              setCurrentlyPlayingName={setCurrentlyPlayingName}
-          />
+              droppedSound={droppedSound}
+              onVolumeChange={handleVolumeChange}
+              onPanChange={handlePanChange}
+            />
           ))}
         </div>
         <label className="make-private-checkbox">
